@@ -21,3 +21,6 @@ This project simulates a basic **Banking System**. It is designed as an internal
 - **Employee Roles**: Employees have different roles within the system, and their actions within the application are managed accordingly.
 
 This project is a modular Java application that can be further expanded to support more features, such as external payment system integration or multi-currency support.
+
+![image](https://github.com/user-attachments/assets/6d2768cd-3448-4282-86be-1cdbaa8588be)
+
