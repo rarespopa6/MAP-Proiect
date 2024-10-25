@@ -8,12 +8,16 @@ public abstract class Account {
     private double balance;
     private LocalDateTime creationTime;
 
-    public Account(int accountId, User owner, double balance, LocalDateTime creationTime) {
+    public Account(int accountId, User owner, double balance) {
         this.accountId = accountId;
         this.owner = owner;
         this.balance = balance;
-        this.creationTime = creationTime;
+        this.creationTime = LocalDateTime.now();
     }
+
+    public abstract void deposit(double amount);
+
+    public abstract void withdraw(double amount);
 
     public int getAccountId() {
         return accountId;

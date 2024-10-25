@@ -2,9 +2,11 @@ package org.bank.model;
 
 import java.time.LocalDateTime;
 
-public class CheckingAccount extends Account implements MoneyMethods{
-    public CheckingAccount(int accountId, User owner, double balance, LocalDateTime creationTime) {
-        super(accountId, owner, balance, creationTime);
+public class CheckingAccount extends Account {
+    private static final double TRANSACTION_FEE = 0.5;
+
+    public CheckingAccount(int accountId, User owner, double balance) {
+        super(accountId, owner, balance);
     }
 
     @Override
@@ -21,11 +23,13 @@ public class CheckingAccount extends Account implements MoneyMethods{
             throw new RuntimeException("Invalid amount to withdraw: " + amount);
         }
 
+        double totalAmount = amount *  (100 + TRANSACTION_FEE) / 100;
         double currentBalance = this.getBalance();
-        if (amount > currentBalance){
+
+        if (totalAmount > currentBalance){
             throw new RuntimeException("You can't withdraw more money than you have.");
         }
 
-        this.setBalance(currentBalance - amount);
+        this.setBalance(currentBalance - totalAmount);
     }
 }
