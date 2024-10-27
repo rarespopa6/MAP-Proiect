@@ -15,9 +15,6 @@ public abstract class Account {
         this.creationTime = LocalDateTime.now();
     }
 
-    public abstract void deposit(double amount);
-
-    public abstract void withdraw(double amount);
 
     public int getAccountId() {
         return accountId;
@@ -53,8 +50,7 @@ public abstract class Account {
 
     @Override
     public String toString() {
-        return "Account{" +
-                "accountId=" + accountId +
+        return " accountId=" + accountId +
                 ", owner=" + owner +
                 ", balance=" + balance +
                 ", creationTime=" + creationTime +

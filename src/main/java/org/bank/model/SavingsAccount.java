@@ -21,31 +21,12 @@ public class SavingsAccount extends Account {
     }
 
     @Override
-    public void deposit(double amount) throws RuntimeException {
-        if (amount <= 0) {
-            throw new RuntimeException("Invalid amount to deposit: " + amount);
-        }
-
-        double interest = this.getBalance() * (interestRate / 100);
-        this.setBalance(this.getBalance() + amount + interest);
-    }
-
-    @Override
-    public void withdraw(double amount) throws RuntimeException {
-        if (amount <= 0) {
-            throw new RuntimeException("Invalid amount to withdraw: " + amount);
-        }
-
-        if (withdrawalsThisMonth >= monthlyWithdrawalLimit) {
-            throw new RuntimeException("Monthly withdrawal limit reached for SavingsAccount.");
-        }
-
-        double currentBalance = this.getBalance();
-        if (amount > currentBalance) {
-            throw new RuntimeException("Insufficient funds.");
-        }
-
-        this.setBalance(currentBalance - amount);
-        withdrawalsThisMonth++;
+    public String toString() {
+        return "SavingsAccount{" +
+                super.toString() +
+                " ,interestRate=" + interestRate +
+                ", monthlyWithdrawalLimit=" + monthlyWithdrawalLimit +
+                ", withdrawalsThisMonth=" + withdrawalsThisMonth +
+                '}';
     }
 }

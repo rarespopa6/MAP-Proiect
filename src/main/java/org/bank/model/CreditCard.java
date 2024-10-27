@@ -29,22 +29,6 @@ public class CreditCard {
         this.cvv = cvv;
     }
 
-    public void fund(double amount) {
-        if (amount > 0 && (currentBalance + amount <= cardLimit)) {
-            currentBalance += amount;
-        } else {
-            throw new RuntimeException("Charge amount exceeds card limit or is invalid.");
-        }
-    }
-
-    public void makePayment(double amount) {
-        if (amount > 0 && amount <= currentBalance) {
-            currentBalance -= amount;
-        } else {
-            throw new RuntimeException("Payment amount exceeds current balance or is invalid.");
-        }
-    }
-
     public long getCardId() {
         return cardId;
     }
