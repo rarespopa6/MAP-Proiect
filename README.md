@@ -22,6 +22,7 @@ This project simulates a basic **Banking System**. It is designed as an internal
 
 This project is a modular Java application that can be further expanded to support more features, such as external payment system integration or multi-currency support.
 
-<img width="814" alt="image" src="https://github.com/user-attachments/assets/60247989-6ebc-4fa3-b7b8-9d073d1ff531">
+<img width="862" alt="image" src="https://github.com/user-attachments/assets/7f32737e-6cc3-4515-9691-30a72cbd3c61">
+
 
 
