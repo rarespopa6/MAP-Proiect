@@ -1,11 +1,12 @@
 package org.bank.model;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class CheckingAccount extends Account {
     private double transactionFee;
 
-    public CheckingAccount(int accountId, User owner, double balance, double transactionFee) {
+    public CheckingAccount(int accountId, List<User> owner, double balance, double transactionFee) {
         super(accountId, owner, balance);
         this.transactionFee = transactionFee;
     }

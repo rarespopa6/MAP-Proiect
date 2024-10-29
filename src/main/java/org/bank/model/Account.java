@@ -1,16 +1,17 @@
 package org.bank.model;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public abstract class Account {
     private int accountId;
-    private User owner;
+    private List<User> customers;
     private double balance;
     private LocalDateTime creationTime;
 
-    public Account(int accountId, User owner, double balance) {
+    public Account(int accountId, List<User> customers, double balance) {
         this.accountId = accountId;
-        this.owner = owner;
+        this.customers = customers;
         this.balance = balance;
         this.creationTime = LocalDateTime.now();
     }
@@ -24,12 +25,12 @@ public abstract class Account {
         this.accountId = accountId;
     }
 
-    public User getOwner() {
-        return owner;
+    public List<User> getCustomers() {
+        return customers;
     }
 
-    public void setOwner(User owner) {
-        this.owner = owner;
+    public void setOwner(List<User> customers) {
+        this.customers = customers;
     }
 
     public double getBalance() {
@@ -51,7 +52,7 @@ public abstract class Account {
     @Override
     public String toString() {
         return " accountId=" + accountId +
-                ", owner=" + owner +
+                ", customers=" + customers.toString() +
                 ", balance=" + balance +
                 ", creationTime=" + creationTime +
                 '}';

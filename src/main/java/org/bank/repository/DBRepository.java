@@ -2,8 +2,9 @@ package org.bank.repository;
 
 public class DBRepository<T> implements IRepository<T>{
     @Override
-    public void create(T obj) {
+    public int create(T obj) {
         // TODO
+        return 0;
     }
 
     @Override

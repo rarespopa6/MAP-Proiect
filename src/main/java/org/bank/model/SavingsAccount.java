@@ -1,13 +1,14 @@
 package org.bank.model;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class SavingsAccount extends Account {
     private double interestRate;
     private int monthlyWithdrawalLimit = 3;
     private int withdrawalsThisMonth = 0;
 
-    public SavingsAccount(int accountId, User owner, double balance, double interestRate) {
+    public SavingsAccount(int accountId, List<User> owner, double balance, double interestRate) {
         super(accountId, owner, balance);
         this.interestRate = interestRate;
     }

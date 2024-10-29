@@ -1,5 +1,7 @@
 package org.bank.repository;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -8,8 +10,10 @@ public class InMemoryRepository<T> implements IRepository<T> {
     private int currentId = 0;
 
     @Override
-    public void create(T obj) {
+    public int create(T obj) {
         data.put(++currentId, obj);
+        return currentId;
+        // TODO setId
     }
 
     @Override
@@ -31,6 +35,10 @@ public class InMemoryRepository<T> implements IRepository<T> {
     public void delete(int id) {
         data.remove(id);
         // TODO logica
+    }
+
+    public List<T> findAll() {
+        return new ArrayList<>(data.values());
     }
 
     private int getIdFromObj(T obj) {
