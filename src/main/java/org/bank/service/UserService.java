@@ -1,5 +1,6 @@
 package org.bank.service;
 
+import org.bank.model.Account;
 import org.bank.model.Customer;
 import org.bank.model.Employee;
 import org.bank.model.User;
@@ -8,11 +9,7 @@ import org.bank.repository.InMemoryRepository;
 import java.util.List;
 
 public class UserService {
-    private final InMemoryRepository<User> userInMemoryRepository;
-
-    public UserService(InMemoryRepository<User> userInMemoryRepository) {
-        this.userInMemoryRepository = userInMemoryRepository;
-    }
+    private final InMemoryRepository<User> userInMemoryRepository = new InMemoryRepository<>();
 
     public void createEmployee(int id, String firstName, String lastName, String email, String phoneNumber, int salary, String role) {
         if (userExistsByEmail(email)) {
@@ -56,6 +53,16 @@ public class UserService {
 
     public List<User> getAllUsers(){
         return userInMemoryRepository.findAll();
+    }
+
+    public void addAccountToCustomer(int customerId, Account account) {
+        User user = userInMemoryRepository.read(customerId);
+
+        if (user instanceof Customer customer) {
+            customer.addAccount(account);
+        } else {
+            throw new RuntimeException("Customer not found or not a valid customer type.");
+        }
     }
 
     private boolean userExistsByEmail(String email) {

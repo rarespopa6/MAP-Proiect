@@ -11,6 +11,15 @@ public class Customer extends User{
         this.accountList = new ArrayList<>();
     }
 
+    public void addAccount(Account account) {
+        this.accountList.add(account);
+    }
+
+    public void removeAccount(Account account) {
+        accountList.remove(account);
+    }
+
+
     public List<Account> getAccountList() {
         return accountList;
     }
@@ -23,7 +32,6 @@ public class Customer extends User{
     public String toString() {
         return "Customer{" +
                 super.toString() +
-                " ,accountList=" + accountList +
                 '}';
     }
 }

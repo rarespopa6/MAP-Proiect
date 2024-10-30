@@ -6,8 +6,8 @@ import java.util.List;
 public class CheckingAccount extends Account {
     private double transactionFee;
 
-    public CheckingAccount(int accountId, List<User> owner, double balance, double transactionFee) {
-        super(accountId, owner, balance);
+    public CheckingAccount(List<User> owners, double balance, double transactionFee) {
+        super(owners, balance);
         this.transactionFee = transactionFee;
     }
 

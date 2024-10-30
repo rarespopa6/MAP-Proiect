@@ -1,20 +1,18 @@
 package org.bank.ui;
 
 import org.bank.controller.AppController;
+import org.bank.model.Account;
+import org.bank.model.Customer;
 import org.bank.model.User;
-import org.bank.repository.InMemoryRepository;
-import org.bank.service.UserService;
 
+import java.util.List;
 import java.util.Scanner;
 
 public class UserInterface {
-    private final AppController appController;
+    private final AppController appController = new AppController();
     private final Scanner scanner = new Scanner(System.in);
     private User loggedInUser;
 
-    public UserInterface(AppController appController) {
-        this.appController = appController;
-    }
 
     public void start() {
         while (true) {
@@ -108,7 +106,10 @@ public class UserInterface {
     private void customerActions() {
         while (true) {
             System.out.println("\n--- Customer Actions ---");
-            System.out.println("1. View My Profile");
+            System.out.println("1. My Profile");
+            System.out.println("2. My Accounts");
+            System.out.println("3. Open New Account");
+            System.out.println("4. Close Account");
             System.out.println("0. Logout");
             System.out.print("Choose an option: ");
 
@@ -125,7 +126,15 @@ public class UserInterface {
                 case 1:
                     viewMyProfile();
                     break;
-
+                case 2:
+                    myAccounts();
+                    break;
+                case 3:
+                    openNewAccount();
+                    break;
+                case 4:
+                    closeAccount();
+                    break;
                 default:
                     System.out.println("Invalid option. Please try again.");
                     break;
@@ -138,6 +147,83 @@ public class UserInterface {
             System.out.println("User Profile: " + loggedInUser);
         } else {
             System.out.println("No user is logged in.");
+        }
+    }
+
+    private void myAccounts() {
+        if (loggedInUser instanceof Customer) {
+            Customer customer = (Customer) loggedInUser;
+            List<Account> accounts = appController.getAccountsForCustomer(customer.getId());
+
+            if (accounts.isEmpty()) {
+                System.out.println("No accounts found.");
+            } else {
+                System.out.println("Your Accounts:");
+                for (Account account : accounts) {
+                    System.out.println(account);
+                }
+            }
+        } else {
+            System.out.println("No customer is logged in.");
+        }
+    }
+
+    private void openNewAccount() {
+        if (loggedInUser instanceof Customer) {
+            Customer customer = (Customer) loggedInUser;
+
+            System.out.println("Choose Account type:");
+            System.out.println("1. Checking Account (0.5% transaction fee)  2. Savings Account (4.5%)");
+            System.out.print("Option: ");
+
+            int option = scanner.nextInt();
+            scanner.nextLine();
+
+            Account newAccount = null;
+
+            if (option != 1 && option != 2){
+                System.out.println("Invalid option.");
+                return;
+            }
+
+            if (option == 1) {
+                System.out.println("New Checking Account");
+                System.out.print("Enter initial deposit: ");
+                double initialDeposit = scanner.nextDouble();
+                scanner.nextLine();
+
+                newAccount = appController.createCheckingAccount(customer.getId(), initialDeposit);
+            } else if (option == 2){
+                System.out.println("New Savings Account");
+                System.out.print("Enter initial deposit: ");
+                double initialDeposit = scanner.nextDouble();
+                scanner.nextLine();
+
+                newAccount = appController.createSavingsAccount(customer.getId(), initialDeposit);
+            }
+            System.out.println("New account opened: " + newAccount);
+        } else {
+            System.out.println("No customer is logged in.");
+        }
+    }
+
+    private void closeAccount() {
+        System.out.print("Enter Account ID to close: ");
+        int accountId = scanner.nextInt();
+        scanner.nextLine();
+
+        System.out.print("Are you sure you want to close this account? (yes/no): ");
+        String confirmation = scanner.nextLine();
+
+        if (confirmation.equalsIgnoreCase("yes")) {
+            try {
+                appController.closeAccount(loggedInUser.getId(), accountId);
+                System.out.println("Account closed successfully.");
+            } catch (RuntimeException e) {
+                System.out.println("Error: " + e.getMessage());
+            }
+        } else {
+            System.out.println("Account closure cancelled.");
         }
     }
 

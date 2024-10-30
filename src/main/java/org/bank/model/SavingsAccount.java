@@ -8,8 +8,8 @@ public class SavingsAccount extends Account {
     private int monthlyWithdrawalLimit = 3;
     private int withdrawalsThisMonth = 0;
 
-    public SavingsAccount(int accountId, List<User> owner, double balance, double interestRate) {
-        super(accountId, owner, balance);
+    public SavingsAccount(List<User> owner, double balance, double interestRate) {
+        super(owner, balance);
         this.interestRate = interestRate;
     }
 

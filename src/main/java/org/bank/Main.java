@@ -1,17 +1,22 @@
 package org.bank;
 
 
-import org.bank.controller.AppController;
-import org.bank.model.User;
-import org.bank.repository.FileRepository;
-import org.bank.repository.InMemoryRepository;
-import org.bank.service.UserService;
 import org.bank.ui.UserInterface;
 
 public class Main {
     public static void main(String[] args) {
-        AppController controller = new AppController(new UserService(new InMemoryRepository<>()));
-        UserInterface ui = new UserInterface(controller);
+        UserInterface ui = new UserInterface();
         ui.start();
+
+        // TODO List
+        // Loan -> Loan List la Customers
+        // AccountLogs - la tranzactii
+        // CreditCard
+        // Transaction
+        // Metode de withdraw/deposit pay etc.
+        // Bank
+
+        // v2 File Repo + login/logout mai strong
+        // v3 DB Repo
     }
 }

@@ -9,8 +9,7 @@ public abstract class Account {
     private double balance;
     private LocalDateTime creationTime;
 
-    public Account(int accountId, List<User> customers, double balance) {
-        this.accountId = accountId;
+    public Account(List<User> customers, double balance) {
         this.customers = customers;
         this.balance = balance;
         this.creationTime = LocalDateTime.now();
