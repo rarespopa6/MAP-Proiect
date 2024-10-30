@@ -5,6 +5,8 @@ import org.bank.model.Employee;
 import org.bank.model.User;
 import org.bank.repository.InMemoryRepository;
 
+import java.util.List;
+
 public class UserService {
     private final InMemoryRepository<User> userInMemoryRepository;
 
@@ -36,11 +38,13 @@ public class UserService {
         return user;
     }
 
-    public void updateUser(User user) {
-        if (!userExists(user.getId())) {
+    public void updateUser(int id, String firstName, String lastName, String email, String phoneNumber) {
+        if (!userExists(id)) {
             throw new RuntimeException("User not found for update");
         }
-        userInMemoryRepository.update(user);
+
+        User updatedUser = new Customer(id, firstName, lastName, email, phoneNumber);
+        userInMemoryRepository.update(updatedUser);
     }
 
     public void deleteUser(int id) {
@@ -48,6 +52,10 @@ public class UserService {
             throw new RuntimeException("User not found for deletion");
         }
         userInMemoryRepository.delete(id);
+    }
+
+    public List<User> getAllUsers(){
+        return userInMemoryRepository.findAll();
     }
 
     private boolean userExistsByEmail(String email) {
