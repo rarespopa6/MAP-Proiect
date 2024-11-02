@@ -11,16 +11,20 @@ public class AppController {
     private final UserService userService = new UserService();
     private final AccountService accountService = new AccountService();
 
-    public int createCustomer(int id, String firstName, String lastName, String email, String phoneNumber){
-        return userService.createCustomer(id, firstName, lastName, email, phoneNumber);
+    public int createCustomer(String firstName, String lastName, String email, String phoneNumber, String password){
+        return userService.createCustomer(firstName, lastName, email, phoneNumber, password);
     }
 
     public User readUser(int id){
         return userService.readUser(id);
     }
 
-    public void updateUser(int id, String firstName, String lastName, String email, String phoneNumber) {
-        userService.updateUser(id, firstName, lastName, email, phoneNumber);
+    public User readUser(String email) {
+        return userService.getUserByEmail(email);
+    }
+
+    public void updateUser(int id, String firstName, String lastName, String email, String phoneNumber, String password) {
+        userService.updateUser(id, firstName, lastName, email, phoneNumber, password);
     }
 
     public void deleteUser(int id) {

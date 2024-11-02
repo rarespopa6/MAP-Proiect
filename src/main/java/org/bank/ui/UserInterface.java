@@ -52,17 +52,28 @@ public class UserInterface {
         System.out.print("Are you a Customer (C) or Employee (E)? ");
         String userType = scanner.nextLine().toUpperCase();
 
-        System.out.print("Enter your ID: ");
-        int id = scanner.nextInt();
-        scanner.nextLine();
+        System.out.print("Email: ");
+        String email = scanner.nextLine();
+
+        User user = appController.readUser(email);
 
         try {
             // Check if user exists based on user type
-            loggedInUser = appController.readUser(id);
-            if (loggedInUser == null) {
+            if (user == null){
                 System.out.println("User not found.");
                 return;
             }
+
+            System.out.print("Password: ");
+            String password = scanner.nextLine();
+
+            if (!user.comparePassword(password)){
+                System.out.println("Incorrect password.");
+                return;
+            }
+
+            loggedInUser = user;
+            System.out.println("Logged in successfully.");
 
             if (userType.equals("C")) {
                 customerActions();
@@ -77,10 +88,6 @@ public class UserInterface {
     }
 
     private void signUp() {
-        System.out.print("Enter ID: ");
-        int id = scanner.nextInt();
-        scanner.nextLine();
-
         System.out.print("Enter First Name: ");
         String firstName = scanner.nextLine();
 
@@ -93,8 +100,11 @@ public class UserInterface {
         System.out.print("Enter Phone Number: ");
         String phoneNumber = scanner.nextLine();
 
+        System.out.print("Enter Password: ");
+        String password = scanner.nextLine();
+
         try {
-            int generatedId = appController.createCustomer(id, firstName, lastName, email, phoneNumber);
+            int generatedId = appController.createCustomer(firstName, lastName, email, phoneNumber, password);
             System.out.println("Customer created with ID: " + generatedId);
             loggedInUser = appController.readUser(generatedId);
             customerActions();
@@ -276,10 +286,6 @@ public class UserInterface {
     }
 
     private void createUser() {
-        System.out.print("Enter ID: ");
-        int id = scanner.nextInt();
-        scanner.nextLine();
-
         System.out.print("Enter First Name: ");
         String firstName = scanner.nextLine();
 
@@ -292,8 +298,11 @@ public class UserInterface {
         System.out.print("Enter Phone Number: ");
         String phoneNumber = scanner.nextLine();
 
+        System.out.print("Enter Password: ");
+        String password = scanner.nextLine();
+
         try {
-            int generatedId = appController.createCustomer(id, firstName, lastName, email, phoneNumber);
+            int generatedId = appController.createCustomer(firstName, lastName, email, phoneNumber, password);
             System.out.println("Customer created with ID: " + generatedId);
         } catch (RuntimeException e) {
             System.out.println("Customer with that email already exists.");
@@ -333,8 +342,11 @@ public class UserInterface {
 
         System.out.print("Enter Phone Number: ");
         String userPhone = scanner.nextLine();
+
+        System.out.print("Enter Password: ");
+        String password = scanner.nextLine();
         try {
-            appController.updateUser(userId, userFirstName, userLastName, userEmail, userPhone);
+            appController.updateUser(userId, userFirstName, userLastName, userEmail, userPhone, password);
             System.out.println("User updated successfully.");
         } catch (RuntimeException e) {
             System.out.println("Error: User not found");

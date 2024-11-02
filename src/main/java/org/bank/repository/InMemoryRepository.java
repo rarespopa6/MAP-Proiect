@@ -1,5 +1,7 @@
 package org.bank.repository;
 
+import org.bank.model.Identifiable;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
@@ -11,9 +13,13 @@ public class InMemoryRepository<T> implements IRepository<T> {
 
     @Override
     public int create(T obj) {
-        data.put(++currentId, obj);
-        return currentId;
-        // TODO setId
+        int newId = ++currentId;
+
+        if (obj instanceof Identifiable) {
+            ((Identifiable) obj).setId(newId);
+        }
+        data.put(newId, obj);
+        return newId;
     }
 
     @Override

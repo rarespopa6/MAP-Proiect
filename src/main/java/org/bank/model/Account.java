@@ -3,8 +3,8 @@ package org.bank.model;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public abstract class Account {
-    private int accountId;
+public abstract class Account implements Identifiable{
+    private int id;
     private List<User> customers;
     private double balance;
     private LocalDateTime creationTime;
@@ -16,12 +16,14 @@ public abstract class Account {
     }
 
 
-    public int getAccountId() {
-        return accountId;
+    @Override
+    public int getId() {
+        return id;
     }
 
-    public void setAccountId(int accountId) {
-        this.accountId = accountId;
+    @Override
+    public void setId(int id) {
+        this.id = id;
     }
 
     public List<User> getCustomers() {
@@ -50,7 +52,7 @@ public abstract class Account {
 
     @Override
     public String toString() {
-        return " accountId=" + accountId +
+        return " accountId=" + id +
                 ", customers=" + customers.toString() +
                 ", balance=" + balance +
                 ", creationTime=" + creationTime +

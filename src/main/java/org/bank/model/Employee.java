@@ -4,8 +4,8 @@ public class Employee extends User{
     private int salary;
     private String role;
 
-    public Employee(int id, String firstName, String lastName, String email, String phoneNumber, int salary, String role) {
-        super(id, firstName, lastName, email, phoneNumber);
+    public Employee(int id, String firstName, String lastName, String email, String phoneNumber, String password, int salary, String role) {
+        super(id, firstName, lastName, email, phoneNumber, password);
         this.salary = salary;
         this.role = role;
     }

@@ -19,7 +19,7 @@ public class AccountService {
         // TODO logica de transaction Fee
         Account newAccount = new CheckingAccount(customers, initialDeposit, 0.5);
         int accountId = accountInMemoryRepository.create(newAccount);
-        newAccount.setAccountId(accountId);
+        newAccount.setId(accountId);
 
         for (User customer : customers) {
             if (customer instanceof Customer) {
@@ -34,7 +34,7 @@ public class AccountService {
         // TODO logica de Interest Rate
         Account newAccount = new SavingsAccount(customers, initialDeposit, 4.5);
         int accountId = accountInMemoryRepository.create(newAccount);
-        newAccount.setAccountId(accountId);
+        newAccount.setId(accountId);
 
         for (User customer : customers) {
             if (customer instanceof Customer) {

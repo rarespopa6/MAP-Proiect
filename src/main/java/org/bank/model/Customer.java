@@ -6,8 +6,13 @@ import java.util.List;
 public class Customer extends User{
     private List<Account> accountList;
 
-    public Customer(int id, String firstName, String lastName, String email, String phoneNumber) {
-        super(id, firstName, lastName, email, phoneNumber);
+    public Customer(int id, String firstName, String lastName, String email, String phoneNumber, String password) {
+        super(id, firstName, lastName, email, phoneNumber, password);
+        this.accountList = new ArrayList<>();
+    }
+
+    public Customer(String firstName, String lastName, String email, String phoneNumber, String password) {
+        super(firstName, lastName, email, phoneNumber, password);
         this.accountList = new ArrayList<>();
     }
 

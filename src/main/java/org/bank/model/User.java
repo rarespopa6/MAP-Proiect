@@ -1,24 +1,44 @@
 package org.bank.model;
 
-public abstract class User {
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+public abstract class User implements Identifiable{
     private int id;
     private String firstName;
     private String lastName;
     private String email;
     private String phoneNumber;
+    private String password;
 
-    public User(int id, String firstName, String lastName, String email, String phoneNumber) {
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+    public User(int id, String firstName, String lastName, String email, String phoneNumber, String password) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.phoneNumber = phoneNumber;
+        this.password = password;
     }
 
+    public User(String firstName, String lastName, String email, String phoneNumber, String password) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+        this.password = password;
+    }
+
+    public boolean comparePassword(String rawPassword) {
+        return passwordEncoder.matches(rawPassword, this.password);
+    }
+
+    @Override
     public int getId() {
         return id;
     }
 
+    @Override
     public void setId(int id) {
         this.id = id;
     }
@@ -53,6 +73,14 @@ public abstract class User {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     @Override

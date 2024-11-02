@@ -5,25 +5,31 @@ import org.bank.model.Customer;
 import org.bank.model.Employee;
 import org.bank.model.User;
 import org.bank.repository.InMemoryRepository;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.List;
 
 public class UserService {
     private final InMemoryRepository<User> userInMemoryRepository = new InMemoryRepository<>();
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    public void createEmployee(int id, String firstName, String lastName, String email, String phoneNumber, int salary, String role) {
+    public void createEmployee(int id, String firstName, String lastName, String email, String phoneNumber, String password, int salary, String role) {
         if (userExistsByEmail(email)) {
             throw new RuntimeException("An employee with this email already exists");
         }
-        User employee = new Employee(id, firstName, lastName, email, phoneNumber, salary, role);
+        String hashedPassword = passwordEncoder.encode(password);
+        User employee = new Employee(id, firstName, lastName, email, phoneNumber, hashedPassword, salary, role);
+
         userInMemoryRepository.create(employee);
     }
 
-    public int createCustomer(int id, String firstName, String lastName, String email, String phoneNumber) {
+    public int createCustomer(String firstName, String lastName, String email, String phoneNumber, String password) {
         if (userExistsByEmail(email)) {
             throw new RuntimeException("A customer with this email already exists");
         }
-        User customer = new Customer(id, firstName, lastName, email, phoneNumber);
+        String hashedPassword = passwordEncoder.encode(password);
+        User customer = new Customer(firstName, lastName, email, phoneNumber, hashedPassword);
+
         return userInMemoryRepository.create(customer);
     }
 
@@ -35,12 +41,14 @@ public class UserService {
         return user;
     }
 
-    public void updateUser(int id, String firstName, String lastName, String email, String phoneNumber) {
+    public void updateUser(int id, String firstName, String lastName, String email, String phoneNumber, String password) {
         if (!userExists(id)) {
             throw new RuntimeException("User not found for update");
         }
 
-        User updatedUser = new Customer(id, firstName, lastName, email, phoneNumber);
+        String hashedPassword = passwordEncoder.encode(password);
+
+        User updatedUser = new Customer(id, firstName, lastName, email, phoneNumber, hashedPassword);
         userInMemoryRepository.update(updatedUser);
     }
 
@@ -63,6 +71,13 @@ public class UserService {
         } else {
             throw new RuntimeException("Customer not found or not a valid customer type.");
         }
+    }
+
+    public User getUserByEmail(String email) {
+        return userInMemoryRepository.findAll().stream()
+                .filter(u -> u.getEmail().equals(email))
+                .findFirst()
+                .orElse(null);
     }
 
     private boolean userExistsByEmail(String email) {
