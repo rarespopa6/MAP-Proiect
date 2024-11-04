@@ -1,11 +1,11 @@
 package org.bank.repository;
 
-/**
+import org.bank.model.Identifiable; /**
  * Interface for a generic repository that provides CRUD (Create, Read, Update, Delete) operations.
  *
- * @param <T> The type of objects to be managed by this repository.
+ * @param <T> The type of objects to be managed by this repository - Identifiable.
  */
-public interface IRepository<T> {
+public interface IRepository<T extends Identifiable> {
 
     /**
      * Creates a new record in the repository for the specified object.

@@ -1,6 +1,8 @@
 package org.bank.repository;
 
-public class DBRepository<T> implements IRepository<T>{
+import org.bank.model.Identifiable;
+
+public class DBRepository<T extends Identifiable> implements IRepository<T>{
     @Override
     public int create(T obj) {
         // TODO

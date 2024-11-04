@@ -11,9 +11,9 @@ import java.util.Map;
  * This class provides basic CRUD (Create, Read, Update, Delete) operations, with support for objects that
  * implement the {@link Identifiable} interface.
  *
- * @param <T> The type of objects to be managed by this repository.
+ * @param <T> The type of objects to be managed by this repository - Identifiable.
  */
-public class InMemoryRepository<T> implements IRepository<T> {
+public class InMemoryRepository<T extends Identifiable> implements IRepository<T> {
     private final Map<Integer, T> data = new HashMap<>();
     private int currentId = 0;
 
@@ -27,10 +27,8 @@ public class InMemoryRepository<T> implements IRepository<T> {
     @Override
     public int create(T obj) {
         int newId = ++currentId;
+        obj.setId(newId);
 
-        if (obj instanceof Identifiable) {
-            ((Identifiable) obj).setId(newId);
-        }
         data.put(newId, obj);
         return newId;
     }
