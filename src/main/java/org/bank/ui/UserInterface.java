@@ -8,12 +8,19 @@ import org.bank.model.User;
 import java.util.List;
 import java.util.Scanner;
 
+/**
+ * UserInterface class handles the interaction with the user,
+ * allowing customers and employees to perform various banking operations.
+ */
 public class UserInterface {
     private final AppController appController = new AppController();
     private final Scanner scanner = new Scanner(System.in);
     private User loggedInUser;
 
-
+    /**
+     * Starts the user interface and handles user interactions in a loop.
+     * Provides options to log in, sign up, or exit the application.
+     */
     public void start() {
         while (true) {
             System.out.println("\n--- Banking Administration System ---");
@@ -34,11 +41,9 @@ public class UserInterface {
                 case 1:
                     login();
                     break;
-
                 case 2:
                     signUp();
                     break;
-
                 default:
                     System.out.println("Invalid option. Please try again.");
                     break;
@@ -48,6 +53,9 @@ public class UserInterface {
         scanner.close();
     }
 
+    /**
+     * Handles user login, verifies user credentials, and directs to respective actions based on user type.
+     */
     private void login() {
         System.out.print("Are you a Customer (C) or Employee (E)? ");
         String userType = scanner.nextLine().toUpperCase();
@@ -59,7 +67,7 @@ public class UserInterface {
 
         try {
             // Check if user exists based on user type
-            if (user == null){
+            if (user == null) {
                 System.out.println("User not found.");
                 return;
             }
@@ -67,7 +75,7 @@ public class UserInterface {
             System.out.print("Password: ");
             String password = scanner.nextLine();
 
-            if (!user.comparePassword(password)){
+            if (!user.comparePassword(password)) {
                 System.out.println("Incorrect password.");
                 return;
             }
@@ -82,11 +90,14 @@ public class UserInterface {
             } else {
                 System.out.println("Invalid user type.");
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             System.out.println("User not found.");
         }
     }
 
+    /**
+     * Allows a new user to sign up by collecting their information and creating a customer account.
+     */
     private void signUp() {
         System.out.print("Enter First Name: ");
         String firstName = scanner.nextLine();
@@ -113,6 +124,9 @@ public class UserInterface {
         }
     }
 
+    /**
+     * Displays actions available to a logged-in customer and handles user choices.
+     */
     private void customerActions() {
         while (true) {
             System.out.println("\n--- Customer Actions ---");
@@ -152,6 +166,9 @@ public class UserInterface {
         }
     }
 
+    /**
+     * Displays the logged-in user's profile information.
+     */
     private void viewMyProfile() {
         if (loggedInUser != null) {
             System.out.println("User Profile: " + loggedInUser);
@@ -160,6 +177,9 @@ public class UserInterface {
         }
     }
 
+    /**
+     * Displays all accounts associated with the logged-in customer.
+     */
     private void myAccounts() {
         if (loggedInUser instanceof Customer) {
             Customer customer = (Customer) loggedInUser;
@@ -178,6 +198,9 @@ public class UserInterface {
         }
     }
 
+    /**
+     * Prompts the customer to open a new account and handles the creation process.
+     */
     private void openNewAccount() {
         if (loggedInUser instanceof Customer) {
             Customer customer = (Customer) loggedInUser;
@@ -191,7 +214,7 @@ public class UserInterface {
 
             Account newAccount = null;
 
-            if (option != 1 && option != 2){
+            if (option != 1 && option != 2) {
                 System.out.println("Invalid option.");
                 return;
             }
@@ -203,7 +226,7 @@ public class UserInterface {
                 scanner.nextLine();
 
                 newAccount = appController.createCheckingAccount(customer.getId(), initialDeposit);
-            } else if (option == 2){
+            } else if (option == 2) {
                 System.out.println("New Savings Account");
                 System.out.print("Enter initial deposit: ");
                 double initialDeposit = scanner.nextDouble();
@@ -217,6 +240,9 @@ public class UserInterface {
         }
     }
 
+    /**
+     * Allows the customer to close one of their accounts after confirmation.
+     */
     private void closeAccount() {
         System.out.print("Enter Account ID to close: ");
         int accountId = scanner.nextInt();
@@ -237,6 +263,9 @@ public class UserInterface {
         }
     }
 
+    /**
+     * Displays actions available to a logged-in employee and handles user choices.
+     */
     private void employeeActions() {
         while (true) {
             System.out.println("\n--- Employee Actions ---");
@@ -261,23 +290,18 @@ public class UserInterface {
                 case 1:
                     createUser();
                     break;
-
                 case 2:
                     readUser();
                     break;
-
                 case 3:
                     updateUser();
                     break;
-
                 case 4:
                     deleteUser();
                     break;
-
                 case 5:
                     listAllUsers();
                     break;
-
                 default:
                     System.out.println("Invalid option. Please try again.");
                     break;
@@ -285,6 +309,9 @@ public class UserInterface {
         }
     }
 
+    /**
+     * Allows an employee to create a new customer account.
+     */
     private void createUser() {
         System.out.print("Enter First Name: ");
         String firstName = scanner.nextLine();
@@ -309,6 +336,9 @@ public class UserInterface {
         }
     }
 
+    /**
+     * Reads and displays information about a user based on the provided ID.
+     */
     private void readUser() {
         System.out.print("Enter ID to read: ");
         int readId = scanner.nextInt();
@@ -326,6 +356,9 @@ public class UserInterface {
         }
     }
 
+    /**
+     * Updates an existing user's information based on the provided details.
+     */
     private void updateUser() {
         System.out.print("Enter ID: ");
         int userId = scanner.nextInt();
@@ -353,6 +386,9 @@ public class UserInterface {
         }
     }
 
+    /**
+     * Deletes a user based on the provided ID.
+     */
     private void deleteUser() {
         System.out.print("Enter ID to delete: ");
         int deleteId = scanner.nextInt();
@@ -366,6 +402,9 @@ public class UserInterface {
         }
     }
 
+    /**
+     * Lists all users in the system.
+     */
     private void listAllUsers() {
         for (User user : appController.getAllUsers()) {
             System.out.println(user);

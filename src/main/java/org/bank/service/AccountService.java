@@ -6,17 +6,35 @@ import org.bank.repository.InMemoryRepository;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Service class that manages bank accounts by providing functionality to create checking and savings accounts,
+ * retrieve accounts for a specific customer, and close accounts.
+ */
 public class AccountService {
     private final InMemoryRepository<Account> accountInMemoryRepository = new InMemoryRepository<>();
 
+    /**
+     * Retrieves all accounts associated with a specified customer ID.
+     *
+     * @param customerId the unique identifier of the customer whose accounts are to be retrieved
+     * @return a list of accounts that belong to the specified customer
+     */
     public List<Account> getAccountsForCustomer(int customerId) {
         return accountInMemoryRepository.findAll().stream()
                 .filter(account -> account.getCustomers().stream().anyMatch(user -> user.getId() == customerId))
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Creates a new checking account for a list of customers with an initial deposit.
+     * The account is stored in the repository and associated with each specified customer.
+     *
+     * @param customers a list of users who will be associated with the checking account
+     * @param initialDeposit the initial deposit amount for the checking account
+     * @return the newly created checking account
+     */
     public Account createCheckingAccount(List<User> customers, double initialDeposit) {
-        // TODO logica de transaction Fee
+        // TODO transaction Fee logic
         Account newAccount = new CheckingAccount(customers, initialDeposit, 0.5);
         int accountId = accountInMemoryRepository.create(newAccount);
         newAccount.setId(accountId);
@@ -30,8 +48,16 @@ public class AccountService {
         return newAccount;
     }
 
+    /**
+     * Creates a new savings account for a list of customers with an initial deposit.
+     * The account is saved in the repository and associated with each specified customer.
+     *
+     * @param customers a list of users who will be associated with the savings account
+     * @param initialDeposit the initial deposit amount for the savings account
+     * @return the newly created savings account
+     */
     public Account createSavingsAccount(List<User> customers, double initialDeposit) {
-        // TODO logica de Interest Rate
+        // TODO Interest Rate logic
         Account newAccount = new SavingsAccount(customers, initialDeposit, 4.5);
         int accountId = accountInMemoryRepository.create(newAccount);
         newAccount.setId(accountId);
@@ -45,6 +71,14 @@ public class AccountService {
         return newAccount;
     }
 
+    /**
+     * Closes a specified account for a customer by removing the account from each associated customer
+     * and deleting it from the repository.
+     *
+     * @param customerId the unique identifier of the customer who owns the account
+     * @param accountId the unique identifier of the account to be closed
+     * @throws RuntimeException if the account is not found or if the customer does not have access to the account
+     */
     public void closeAccountForCustomer(int customerId, int accountId) {
         Account account = accountInMemoryRepository.read(accountId);
 
@@ -52,19 +86,16 @@ public class AccountService {
             throw new RuntimeException("Account not found.");
         }
 
-        // Verificăm dacă utilizatorul este proprietarul contului
         if (account.getCustomers().stream().noneMatch(user -> user.getId() == customerId)) {
             throw new RuntimeException("User does not have access to this account.");
         }
 
-        // Ștergem contul din lista conturilor utilizatorului
         account.getCustomers().forEach(customer -> {
             if (customer instanceof Customer) {
                 ((Customer) customer).removeAccount(account);
             }
         });
 
-        // Ștergem contul din repo-ul general de conturi
         accountInMemoryRepository.delete(accountId);
     }
 

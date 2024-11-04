@@ -9,10 +9,27 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.List;
 
+/**
+ * Service class that provides functionality for managing users, including customers and employees.
+ * This service handles user creation, retrieval, updating, and deletion, as well as account management for customers.
+ */
 public class UserService {
     private final InMemoryRepository<User> userInMemoryRepository = new InMemoryRepository<>();
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
+    /**
+     * Creates a new employee and saves it in the repository. Ensures the email is unique.
+     *
+     * @param id the unique identifier for the employee.
+     * @param firstName the first name of the employee.
+     * @param lastName the last name of the employee.
+     * @param email the email address of the employee.
+     * @param phoneNumber the phone number of the employee.
+     * @param password the plain-text password for the employee, which will be hashed.
+     * @param salary the salary of the employee.
+     * @param role the role of the employee.
+     * @throws RuntimeException if an employee with the specified email already exists.
+     */
     public void createEmployee(int id, String firstName, String lastName, String email, String phoneNumber, String password, int salary, String role) {
         if (userExistsByEmail(email)) {
             throw new RuntimeException("An employee with this email already exists");
@@ -23,6 +40,17 @@ public class UserService {
         userInMemoryRepository.create(employee);
     }
 
+    /**
+     * Creates a new customer and saves it in the repository. Ensures the email is unique.
+     *
+     * @param firstName the first name of the customer.
+     * @param lastName the last name of the customer.
+     * @param email the email address of the customer.
+     * @param phoneNumber the phone number of the customer.
+     * @param password the plain-text password for the customer, which will be hashed.
+     * @return the unique ID assigned to the newly created customer.
+     * @throws RuntimeException if a customer with the specified email already exists.
+     */
     public int createCustomer(String firstName, String lastName, String email, String phoneNumber, String password) {
         if (userExistsByEmail(email)) {
             throw new RuntimeException("A customer with this email already exists");
@@ -33,6 +61,13 @@ public class UserService {
         return userInMemoryRepository.create(customer);
     }
 
+    /**
+     * Retrieves a user by their ID.
+     *
+     * @param id the unique identifier of the user.
+     * @return the user with the specified ID.
+     * @throws RuntimeException if the user is not found.
+     */
     public User readUser(int id) {
         User user = userInMemoryRepository.read(id);
         if (user == null) {
@@ -41,6 +76,17 @@ public class UserService {
         return user;
     }
 
+    /**
+     * Updates an existing user's information in the repository.
+     *
+     * @param id the unique identifier of the user to update.
+     * @param firstName the new first name of the user.
+     * @param lastName the new last name of the user.
+     * @param email the new email address of the user.
+     * @param phoneNumber the new phone number of the user.
+     * @param password the new plain-text password for the user, which will be hashed.
+     * @throws RuntimeException if the user is not found.
+     */
     public void updateUser(int id, String firstName, String lastName, String email, String phoneNumber, String password) {
         if (!userExists(id)) {
             throw new RuntimeException("User not found for update");
@@ -52,6 +98,12 @@ public class UserService {
         userInMemoryRepository.update(updatedUser);
     }
 
+    /**
+     * Deletes a user from the repository by their ID.
+     *
+     * @param id the unique identifier of the user to delete.
+     * @throws RuntimeException if the user is not found.
+     */
     public void deleteUser(int id) {
         if (!userExists(id)) {
             throw new RuntimeException("User not found for deletion");
@@ -59,10 +111,22 @@ public class UserService {
         userInMemoryRepository.delete(id);
     }
 
-    public List<User> getAllUsers(){
+    /**
+     * Retrieves a list of all users currently stored in the repository.
+     *
+     * @return a list of all users.
+     */
+    public List<User> getAllUsers() {
         return userInMemoryRepository.findAll();
     }
 
+    /**
+     * Adds a bank account to a customer based on their ID.
+     *
+     * @param customerId the unique identifier of the customer.
+     * @param account the account to be added to the customer.
+     * @throws RuntimeException if the customer is not found or the user is not of type Customer.
+     */
     public void addAccountToCustomer(int customerId, Account account) {
         User user = userInMemoryRepository.read(customerId);
 
@@ -73,6 +137,12 @@ public class UserService {
         }
     }
 
+    /**
+     * Retrieves a user by their email address.
+     *
+     * @param email the email address of the user to find.
+     * @return the user with the specified email, or {@code null} if not found.
+     */
     public User getUserByEmail(String email) {
         return userInMemoryRepository.findAll().stream()
                 .filter(u -> u.getEmail().equals(email))
@@ -80,11 +150,23 @@ public class UserService {
                 .orElse(null);
     }
 
+    /**
+     * Checks if a user exists based on their email address.
+     *
+     * @param email the email address to check.
+     * @return {@code true} if a user with the specified email exists, {@code false} otherwise.
+     */
     private boolean userExistsByEmail(String email) {
         return userInMemoryRepository.findAll().stream()
                 .anyMatch(u -> u.getEmail().equals(email));
     }
 
+    /**
+     * Checks if a user exists in the repository by their ID.
+     *
+     * @param id the unique identifier of the user.
+     * @return {@code true} if a user with the specified ID exists, {@code false} otherwise.
+     */
     private boolean userExists(int id) {
         return userInMemoryRepository.read(id) != null;
     }
