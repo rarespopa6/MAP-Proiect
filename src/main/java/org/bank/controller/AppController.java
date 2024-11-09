@@ -127,11 +127,28 @@ public class AppController {
         accountService.closeAccountForCustomer(customerId, accountId);
     }
 
-    public void getLoan(Customer borrower, double amount, int termMonths) {
+    /**
+     * Makes a new loan for a customer and credits the loan amount to the specified account.
+     *
+     * @param borrower the customer who is taking out the loan
+     * @param account the account to which the loan amount will be credited
+     * @param amount the amount of the loan
+     * @param termMonths the term of the loan in months
+     */
+    public void getLoan(Customer borrower, Account account, double amount, int termMonths) {
         this.loanService.getNewLoan(borrower, amount, termMonths);
+        this.accountService.addBalance(account, amount);
     }
 
-    public void payLoan(int loanId, Customer borrower, double paymentAmount) {
+    /**
+     * Pays off a loan for a customer and debits the payment amount from the specified account.
+     *
+     * @param loanId the id of the loan to be paid
+     * @param borrower the customer who is paying off the loan
+     * @param account the account from which the payment will be deducted
+     * @param paymentAmount the amount to be paid off
+     */
+    public void payLoan(int loanId, Customer borrower, Account account, double paymentAmount) {
         Loan loan = this.loanService.getLoans(borrower).stream()
                 .filter(l -> l.getId() == loanId)
                 .findFirst()
@@ -139,9 +156,22 @@ public class AppController {
 
         if (loan != null) {
             this.loanService.payLoan(borrower, loan, paymentAmount);
+
+            try {
+                this.accountService.subtractBalance(account, paymentAmount);
+            } catch (Exception e) {
+                throw e;
+            }
         }
+        else System.out.println("Loan not found.");
     }
 
+    /**
+     * Retrieves all loans associated with a specified customer.
+     *
+     * @param borrower the customer whose loans are to be retrieved
+     * @return a list of loans associated with the specified customer
+     */
     public List<Loan> viewLoansStatus(Customer borrower) {
         return this.loanService.getLoans(borrower);
     }

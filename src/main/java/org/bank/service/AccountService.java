@@ -99,4 +99,15 @@ public class AccountService {
         accountInMemoryRepository.delete(accountId);
     }
 
+    public void addBalance(Account account, double amount) {
+        account.setBalance(account.getBalance() + amount);
+    }
+
+    public void subtractBalance(Account account, double amount) {
+        if(account.getBalance() < amount) {
+            throw new RuntimeException("Insufficient funds");
+        }
+
+        account.setBalance(account.getBalance() - amount);
+    }
 }

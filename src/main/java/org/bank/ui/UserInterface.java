@@ -414,6 +414,9 @@ public class UserInterface {
         }
     }
 
+    /**
+     * Allows the customer to select a checking account and perform loan-related actions.
+     */
     private void setSelectedAccount() {
         System.out.print("Select a Checking Account: ");
 
@@ -421,6 +424,11 @@ public class UserInterface {
                 .stream()
                 .filter(account -> account instanceof CheckingAccount)
                 .toList();
+
+        if(checkingAccounts.isEmpty()) {
+            System.out.println("No checking accounts found.");
+            return;
+        }
 
         for (Account account : checkingAccounts) {
             System.out.println(account);
@@ -436,6 +444,9 @@ public class UserInterface {
         loanActions();
     }
 
+    /**
+     * Displays loan-related actions available to the customer and handles user choices.
+     */
     private void loanActions() {
         while (true) {
             System.out.println("\n--- Loan Actions ---");
@@ -469,6 +480,9 @@ public class UserInterface {
         }
     }
 
+    /**
+     * Prompts the customer to apply for a loan and handles the loan creation process.
+     */
     private void applyForLoan() {
         System.out.print("Enter loan amount: ");
         double loanAmount = scanner.nextDouble();
@@ -478,15 +492,21 @@ public class UserInterface {
         int termMonths = scanner.nextInt();
         scanner.nextLine();
 
-        this.appController.getLoan((Customer) loggedInUser, loanAmount, termMonths);
+        this.appController.getLoan((Customer) loggedInUser, selectedAccount, loanAmount, termMonths);
     }
 
+    /**
+     * Lists all ongoing loans associated with the logged-in customer.
+     */
     private void listAllLoans() {
         for (Loan loan : this.appController.viewLoansStatus((Customer) loggedInUser)) {
             System.out.println(loan);
         }
     }
 
+    /**
+     * Allows the customer to pay off an existing loan.
+     */
     private void payLoan() {
         System.out.print("Enter loan ID: ");
         int loanId = scanner.nextInt();
@@ -496,6 +516,6 @@ public class UserInterface {
         double paymentAmount = scanner.nextDouble();
         scanner.nextLine();
 
-        this.appController.payLoan(loanId, (Customer) loggedInUser, paymentAmount);
+        this.appController.payLoan(loanId, (Customer) loggedInUser, selectedAccount, paymentAmount);
     }
 }
