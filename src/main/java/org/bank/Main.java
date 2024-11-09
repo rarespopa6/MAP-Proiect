@@ -9,11 +9,9 @@ public class Main {
         ui.start();
 
         // TODO List
-        // Loan -> Loan List la Customers
-        // AccountLogs - la tranzactii
+        // AccountLogs - la tranzactii, deposit si withdraw
         // CreditCard
         // Transaction
-        // Metode de withdraw/deposit pay etc.
         // Bank
 
         // v2 File Repo + login/logout mai strong

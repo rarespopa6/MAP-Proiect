@@ -1,6 +1,7 @@
 package org.bank.model;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -20,7 +21,11 @@ public abstract class Account implements Identifiable {
      * @param balance   the initial balance of the account
      */
     public Account(List<User> customers, double balance) {
-        this.customers = customers;
+        if (customers == null) {
+            this.customers = new ArrayList<>();
+        } else {
+            this.customers = new ArrayList<>(customers);
+        }
         this.balance = balance;
         this.creationTime = LocalDateTime.now();
     }
@@ -54,14 +59,29 @@ public abstract class Account implements Identifiable {
         return customers;
     }
 
-    /**
-     * Sets the owners of the account.
-     *
-     * @param customers the list of users to set as owners
-     */
     public void setOwner(List<User> customers) {
-        this.customers = customers;
+        if (customers == null) {
+            this.customers = new ArrayList<>();
+        } else {
+            this.customers = new ArrayList<>(customers);
+        }
     }
+
+    public void addCustomer(User customer) {
+        if (customers == null) {
+            customers = new ArrayList<>();  // Inițializează lista dacă este null
+        }
+
+        if (customer != null && !customers.contains(customer)) {
+            customers.add(customer);
+            System.out.println("Customer added to account: " + customer.getId());
+        } else {
+            System.out.println("Customer already exists or invalid customer.");
+        }
+
+        setOwner(customers);
+    }
+
 
     /**
      * Retrieves the current balance of the account.

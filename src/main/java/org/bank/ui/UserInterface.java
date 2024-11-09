@@ -134,6 +134,9 @@ public class UserInterface {
             System.out.println("3. Open New Account");
             System.out.println("4. Close Account");
             System.out.println("5. Loans");
+            System.out.println("6. Manage Account Funds");
+            System.out.println("7. Apply for Co-Ownership");
+            System.out.println("8. View Co-Ownership Requests");
             System.out.println("0. Logout");
             System.out.print("Choose an option: ");
 
@@ -162,10 +165,176 @@ public class UserInterface {
                 case 5:
                     setSelectedAccount();
                     break;
+                case 6:
+                    manageAccountFunds();
+                    break;
+                case 7:
+                    applyForAccount();
+                    break;
+                case 8:
+                    viewCoOwnershipRequests();
+                    break;
                 default:
                     System.out.println("Invalid option. Please try again.");
                     break;
             }
+        }
+    }
+
+    /**
+     * Allows the customer to manage their account funds, including viewing balance, depositing, and withdrawing.
+     */
+    private void manageAccountFunds() {
+        if (loggedInUser instanceof Customer) {
+            Customer customer = (Customer) loggedInUser;
+            List<Account> accounts = appController.getAccountsForCustomer(customer.getId());
+
+            if (accounts.isEmpty()) {
+                System.out.println("No accounts found.");
+                return;
+            }
+
+            System.out.println("Your Accounts:");
+            for (Account account : accounts) {
+                System.out.println(account);
+            }
+
+            System.out.print("Enter Account ID to manage funds: ");
+            int accountId = scanner.nextInt();
+            scanner.nextLine();
+
+            Account selectedAccount = accounts.stream()
+                    .filter(account -> account.getId() == accountId)
+                    .findFirst()
+                    .orElse(null);
+
+            if (selectedAccount == null) {
+                System.out.println("Account not found.");
+                return;
+            }
+
+            while (true) {
+                System.out.println("\n--- Manage Account Funds ---");
+                System.out.println("1. View Balance");
+                System.out.println("2. Deposit");
+                System.out.println("3. Withdraw");
+                System.out.println("0. Back");
+                System.out.print("Choose an option: ");
+
+                int option = scanner.nextInt();
+                scanner.nextLine();
+
+                switch (option) {
+                    case 1:
+                        viewBalance(selectedAccount);
+                        break;
+                    case 2:
+                        depositToAccount(selectedAccount);
+                        break;
+                    case 3:
+                        withdrawFromAccount(selectedAccount);
+                        break;
+                    case 0:
+                        return;
+                    default:
+                        System.out.println("Invalid option. Please try again.");
+                        break;
+                }
+            }
+        } else {
+            System.out.println("No customer is logged in.");
+        }
+    }
+
+    /**
+     * Displays the balance of the selected account.
+     */
+    private void viewBalance(Account account) {
+        System.out.println("Balance for Account ID " + account.getId() + ": " + account.getBalance());
+    }
+
+    /**
+     * Handles deposit to the selected account.
+     */
+    private void depositToAccount(Account account) {
+        System.out.print("Enter deposit amount: ");
+        double amount = scanner.nextDouble();
+        scanner.nextLine();
+
+        try {
+            appController.depositToAccount(account.getId(), loggedInUser.getId(), amount);
+            System.out.println("Deposit successful. New balance: " + account.getBalance());
+        } catch (RuntimeException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Handles withdrawal from the selected account.
+     */
+    private void withdrawFromAccount(Account account) {
+        System.out.print("Enter withdrawal amount: ");
+        double amount = scanner.nextDouble();
+        scanner.nextLine();
+
+        try {
+            appController.withdrawFromAccount(account.getId(), loggedInUser.getId(), amount);
+            System.out.println("Withdrawal successful. New balance: " + account.getBalance());
+        } catch (RuntimeException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Allows the logged-in user to apply for co-ownership of an account.
+     * The user is prompted to enter the account ID and the account owner's email.
+     * The application attempts to send a co-ownership request.
+     * If the request is successful, a success message is displayed, otherwise, an error message is shown.
+     */
+    private void applyForAccount() {
+        System.out.print("Enter account ID to request co-ownership: ");
+        int accountId = scanner.nextInt();
+        scanner.nextLine();
+
+        System.out.print("Enter account owner's email: ");
+        String accountOwnerEmail = scanner.nextLine();
+
+        try {
+            appController.applyForAccount(accountId, loggedInUser.getId(), accountOwnerEmail);
+            System.out.println("Co-ownership request sent successfully.");
+        } catch (RuntimeException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Displays all pending co-ownership requests for the logged-in user.
+     * If there are pending requests, the user can select a request to approve.
+     * Once a request is selected, it is approved, and a success message is shown.
+     * If no requests are pending, a message is displayed to inform the user.
+     */
+    private void viewCoOwnershipRequests() {
+        List<CoOwnershipRequest> requests = appController.viewPendingRequests(loggedInUser.getId());
+
+        if (requests.isEmpty()) {
+            System.out.println("No pending requests.");
+            return;
+        }
+
+        System.out.println("Pending Co-Ownership Requests:");
+        for (CoOwnershipRequest request : requests) {
+            System.out.println(request);
+        }
+
+        System.out.print("Enter request ID to approve: ");
+        int requestId = scanner.nextInt();
+        scanner.nextLine();
+
+        try {
+            appController.approveCoOwnership(requestId);
+            System.out.println("Request approved successfully.");
+        } catch (RuntimeException e) {
+            System.out.println("Error: " + e.getMessage());
         }
     }
 
@@ -426,14 +595,16 @@ public class UserInterface {
                 .toList();
 
         if(checkingAccounts.isEmpty()) {
-            System.out.println("No checking accounts found.");
+            System.out.println("No checking accounts found. Open one first in order to get a loan.");
             return;
         }
 
+        System.out.println();
         for (Account account : checkingAccounts) {
             System.out.println(account);
         }
 
+        System.out.print("Account ID: ");
         int accountId = scanner.nextInt();
 
         this.selectedAccount = checkingAccounts.stream()
@@ -488,19 +659,30 @@ public class UserInterface {
         double loanAmount = scanner.nextDouble();
         scanner.nextLine();
 
-        System.out.print("Enter term in months: ");
+        System.out.print("Enter term in months: (6 min/ 120 max)");
         int termMonths = scanner.nextInt();
         scanner.nextLine();
 
+        if (termMonths < 6 || termMonths > 120) {
+            System.out.println("Invalid term months. Please try again.");
+        }
+
         this.appController.getLoan((Customer) loggedInUser, selectedAccount, loanAmount, termMonths);
+        System.out.println("Loan taken successfully!");
     }
 
     /**
      * Lists all ongoing loans associated with the logged-in customer.
      */
     private void listAllLoans() {
+        int count = 0;
         for (Loan loan : this.appController.viewLoansStatus((Customer) loggedInUser)) {
             System.out.println(loan);
+            count++;
+        }
+
+        if (count == 0) {
+            System.out.println("No loans found.");
         }
     }
 
@@ -512,10 +694,23 @@ public class UserInterface {
         int loanId = scanner.nextInt();
         scanner.nextLine();
 
-        System.out.print("Enter payment amount: ");
-        double paymentAmount = scanner.nextDouble();
-        scanner.nextLine();
+        // Obținem informații despre creditul cu ID-ul specificat
+        Loan loan = this.appController.getLoanById(loanId, (Customer) loggedInUser);
 
-        this.appController.payLoan(loanId, (Customer) loggedInUser, selectedAccount, paymentAmount);
+        // Verificăm dacă creditul există și afișăm informațiile
+        if (loan != null) {
+            System.out.println("Loan Information:");
+            System.out.println(" - Remaining amount: " + loan.getLoanAmount());
+            System.out.println(" - Remaining term: " + loan.getTermMonths() + " months");
+
+            System.out.print("Enter payment amount: ");
+            double paymentAmount = scanner.nextDouble();
+            scanner.nextLine();
+
+            this.appController.payLoan(loanId, (Customer) loggedInUser, selectedAccount, paymentAmount);
+        } else {
+            System.out.println("Loan not found.");
+        }
     }
+
 }
