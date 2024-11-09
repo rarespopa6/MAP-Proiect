@@ -9,6 +9,7 @@ import java.util.List;
  */
 public class Customer extends User {
     private List<Account> accountList;
+    private List<Loan> loanList;
 
     /**
      * Constructs a Customer instance with specified details, including a unique identifier.
@@ -23,6 +24,7 @@ public class Customer extends User {
     public Customer(int id, String firstName, String lastName, String email, String phoneNumber, String password) {
         super(id, firstName, lastName, email, phoneNumber, password);
         this.accountList = new ArrayList<>();
+        this.loanList = new ArrayList<>();
     }
 
     /**
@@ -37,6 +39,7 @@ public class Customer extends User {
     public Customer(String firstName, String lastName, String email, String phoneNumber, String password) {
         super(firstName, lastName, email, phoneNumber, password);
         this.accountList = new ArrayList<>();
+        this.loanList = new ArrayList<>();
     }
 
     /**
@@ -74,6 +77,41 @@ public class Customer extends User {
     public void setAccountList(List<Account> accountList) {
         this.accountList = accountList;
     }
+
+    /**
+     * Adds a new loan to the customer's loan list.
+     *
+     * @param loan the loan to be added
+     */
+    public void addLoan(Loan loan) { this.loanList.add(loan); }
+
+    /**
+     * Removes a loan from the customer's loan list.
+     *
+     * @param loan the loan to be removed
+     */
+    public void removeLoan(Loan loan) {
+        this.loanList.remove(loan);
+    }
+
+    /**
+     * Retrieves the list of loans the customer has previously taken.
+     *
+     * @return a list of loans the customer has taken from the bank
+     */
+    public List<Loan> getLoanList() {
+        return this.loanList;
+    }
+
+    /**
+     * Sets the list of loans the customer has taken from the bank.
+     *
+     * @param loanList the list of loans to be set
+     */
+    public void setLoanList(List<Loan> loanList) {
+        this.loanList = loanList;
+    }
+
 
     /**
      * Returns a string representation of the customer, including personal details.

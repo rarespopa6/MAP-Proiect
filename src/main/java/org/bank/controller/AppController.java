@@ -1,8 +1,11 @@
 package org.bank.controller;
 
 import org.bank.model.Account;
+import org.bank.model.Customer;
+import org.bank.model.Loan;
 import org.bank.model.User;
 import org.bank.service.AccountService;
+import org.bank.service.LoanService;
 import org.bank.service.UserService;
 
 import java.util.List;
@@ -14,6 +17,7 @@ import java.util.List;
 public class AppController {
     private final UserService userService = new UserService();
     private final AccountService accountService = new AccountService();
+    private final LoanService loanService = new LoanService();
 
     /**
      * Creates a new customer and returns their unique identifier.
@@ -121,5 +125,24 @@ public class AppController {
      */
     public void closeAccount(int customerId, int accountId) {
         accountService.closeAccountForCustomer(customerId, accountId);
+    }
+
+    public void getLoan(Customer borrower, double amount, int termMonths) {
+        this.loanService.getNewLoan(borrower, amount, termMonths);
+    }
+
+    public void payLoan(int loanId, Customer borrower, double paymentAmount) {
+        Loan loan = this.loanService.getLoans(borrower).stream()
+                .filter(l -> l.getId() == loanId)
+                .findFirst()
+                .orElse(null);
+
+        if (loan != null) {
+            this.loanService.payLoan(borrower, loan, paymentAmount);
+        }
+    }
+
+    public List<Loan> viewLoansStatus(Customer borrower) {
+        return this.loanService.getLoans(borrower);
     }
 }

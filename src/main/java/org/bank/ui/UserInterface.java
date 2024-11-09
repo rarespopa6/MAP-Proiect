@@ -1,9 +1,7 @@
 package org.bank.ui;
 
 import org.bank.controller.AppController;
-import org.bank.model.Account;
-import org.bank.model.Customer;
-import org.bank.model.User;
+import org.bank.model.*;
 
 import java.util.List;
 import java.util.Scanner;
@@ -16,6 +14,7 @@ public class UserInterface {
     private final AppController appController = new AppController();
     private final Scanner scanner = new Scanner(System.in);
     private User loggedInUser;
+    private Account selectedAccount;
 
     /**
      * Starts the user interface and handles user interactions in a loop.
@@ -134,6 +133,7 @@ public class UserInterface {
             System.out.println("2. My Accounts");
             System.out.println("3. Open New Account");
             System.out.println("4. Close Account");
+            System.out.println("5. Loans");
             System.out.println("0. Logout");
             System.out.print("Choose an option: ");
 
@@ -158,6 +158,9 @@ public class UserInterface {
                     break;
                 case 4:
                     closeAccount();
+                    break;
+                case 5:
+                    setSelectedAccount();
                     break;
                 default:
                     System.out.println("Invalid option. Please try again.");
@@ -409,5 +412,90 @@ public class UserInterface {
         for (User user : appController.getAllUsers()) {
             System.out.println(user);
         }
+    }
+
+    private void setSelectedAccount() {
+        System.out.print("Select a Checking Account: ");
+
+        List<Account> checkingAccounts = appController.getAccountsForCustomer(loggedInUser.getId())
+                .stream()
+                .filter(account -> account instanceof CheckingAccount)
+                .toList();
+
+        for (Account account : checkingAccounts) {
+            System.out.println(account);
+        }
+
+        int accountId = scanner.nextInt();
+
+        this.selectedAccount = checkingAccounts.stream()
+                .filter(account -> account.getId() == accountId)
+                .findFirst()
+                .orElse(null);
+
+        loanActions();
+    }
+
+    private void loanActions() {
+        while (true) {
+            System.out.println("\n--- Loan Actions ---");
+            System.out.println("1. Apply for Loan");
+            System.out.println("2. Pay Loan");
+            System.out.println("3. View Ongoing Loans");
+            System.out.println("0. Back");
+            System.out.print("Choose an option: ");
+
+            int option = scanner.nextInt();
+            scanner.nextLine();
+
+            if (option == 0) {
+                break;
+            }
+
+            switch (option) {
+                case 1:
+                    applyForLoan();
+                    break;
+                case 2:
+                    payLoan();
+                    break;
+                case 3:
+                    listAllLoans();
+                    break;
+                default:
+                    System.out.println("Invalid option. Please try again.");
+                    break;
+            }
+        }
+    }
+
+    private void applyForLoan() {
+        System.out.print("Enter loan amount: ");
+        double loanAmount = scanner.nextDouble();
+        scanner.nextLine();
+
+        System.out.print("Enter term in months: ");
+        int termMonths = scanner.nextInt();
+        scanner.nextLine();
+
+        this.appController.getLoan((Customer) loggedInUser, loanAmount, termMonths);
+    }
+
+    private void listAllLoans() {
+        for (Loan loan : this.appController.viewLoansStatus((Customer) loggedInUser)) {
+            System.out.println(loan);
+        }
+    }
+
+    private void payLoan() {
+        System.out.print("Enter loan ID: ");
+        int loanId = scanner.nextInt();
+        scanner.nextLine();
+
+        System.out.print("Enter payment amount: ");
+        double paymentAmount = scanner.nextDouble();
+        scanner.nextLine();
+
+        this.appController.payLoan(loanId, (Customer) loggedInUser, paymentAmount);
     }
 }
