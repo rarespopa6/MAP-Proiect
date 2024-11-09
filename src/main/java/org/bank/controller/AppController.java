@@ -155,15 +155,16 @@ public class AppController {
                 .orElse(null);
 
         if (loan != null) {
-            this.loanService.payLoan(borrower, loan, paymentAmount);
+            double actualPayment = this.loanService.payLoan(borrower, loan, paymentAmount);
 
             try {
-                this.accountService.subtractBalance(account, paymentAmount);
+                this.accountService.subtractBalance(account, actualPayment);
             } catch (Exception e) {
                 throw e;
             }
+        } else {
+            System.out.println("Loan not found.");
         }
-        else System.out.println("Loan not found.");
     }
 
     /**
@@ -175,4 +176,18 @@ public class AppController {
     public List<Loan> viewLoansStatus(Customer borrower) {
         return this.loanService.getLoans(borrower);
     }
+
+    public Loan getLoanById(int loanId, Customer borrower) {
+        return this.loanService.getLoanById(loanId, borrower);
+    }
+
+    public void depositToAccount(int accountId, int userId, double amount) {
+        accountService.depositToAccount(accountId, userId, amount);
+    }
+
+    public void withdrawFromAccount(int accountId, int userId, double amount) {
+        accountService.withdrawFromAccount(accountId, userId, amount);
+    }
+
+
 }

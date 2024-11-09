@@ -134,6 +134,7 @@ public class UserInterface {
             System.out.println("3. Open New Account");
             System.out.println("4. Close Account");
             System.out.println("5. Loans");
+            System.out.println("6. Manage Account Funds");  // Noua opțiune adăugată
             System.out.println("0. Logout");
             System.out.print("Choose an option: ");
 
@@ -162,12 +163,120 @@ public class UserInterface {
                 case 5:
                     setSelectedAccount();
                     break;
+                case 6:
+                    manageAccountFunds(); // Apelul metodei de gestionare a fondurilor
+                    break;
                 default:
                     System.out.println("Invalid option. Please try again.");
                     break;
             }
         }
     }
+
+    /**
+     * Allows the customer to manage their account funds, including viewing balance, depositing, and withdrawing.
+     */
+    private void manageAccountFunds() {
+        if (loggedInUser instanceof Customer) {
+            Customer customer = (Customer) loggedInUser;
+            List<Account> accounts = appController.getAccountsForCustomer(customer.getId());
+
+            if (accounts.isEmpty()) {
+                System.out.println("No accounts found.");
+                return;
+            }
+
+            System.out.println("Your Accounts:");
+            for (Account account : accounts) {
+                System.out.println(account);
+            }
+
+            System.out.print("Enter Account ID to manage funds: ");
+            int accountId = scanner.nextInt();
+            scanner.nextLine();
+
+            Account selectedAccount = accounts.stream()
+                    .filter(account -> account.getId() == accountId)
+                    .findFirst()
+                    .orElse(null);
+
+            if (selectedAccount == null) {
+                System.out.println("Account not found.");
+                return;
+            }
+
+            while (true) {
+                System.out.println("\n--- Manage Account Funds ---");
+                System.out.println("1. View Balance");
+                System.out.println("2. Deposit");
+                System.out.println("3. Withdraw");
+                System.out.println("0. Back");
+                System.out.print("Choose an option: ");
+
+                int option = scanner.nextInt();
+                scanner.nextLine();
+
+                switch (option) {
+                    case 1:
+                        viewBalance(selectedAccount);
+                        break;
+                    case 2:
+                        depositToAccount(selectedAccount);
+                        break;
+                    case 3:
+                        withdrawFromAccount(selectedAccount);
+                        break;
+                    case 0:
+                        return;
+                    default:
+                        System.out.println("Invalid option. Please try again.");
+                        break;
+                }
+            }
+        } else {
+            System.out.println("No customer is logged in.");
+        }
+    }
+
+    /**
+     * Displays the balance of the selected account.
+     */
+    private void viewBalance(Account account) {
+        System.out.println("Balance for Account ID " + account.getId() + ": " + account.getBalance());
+    }
+
+    /**
+     * Handles deposit to the selected account.
+     */
+    private void depositToAccount(Account account) {
+        System.out.print("Enter deposit amount: ");
+        double amount = scanner.nextDouble();
+        scanner.nextLine();
+
+        try {
+            appController.depositToAccount(account.getId(), loggedInUser.getId(), amount);
+            System.out.println("Deposit successful. New balance: " + account.getBalance());
+        } catch (RuntimeException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Handles withdrawal from the selected account.
+     */
+    private void withdrawFromAccount(Account account) {
+        System.out.print("Enter withdrawal amount: ");
+        double amount = scanner.nextDouble();
+        scanner.nextLine();
+
+        try {
+            appController.withdrawFromAccount(account.getId(), loggedInUser.getId(), amount);
+            System.out.println("Withdrawal successful. New balance: " + account.getBalance());
+        } catch (RuntimeException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
 
     /**
      * Displays the logged-in user's profile information.
@@ -426,14 +535,16 @@ public class UserInterface {
                 .toList();
 
         if(checkingAccounts.isEmpty()) {
-            System.out.println("No checking accounts found.");
+            System.out.println("No checking accounts found. Open one first in order to get a loan.");
             return;
         }
 
+        System.out.println();
         for (Account account : checkingAccounts) {
             System.out.println(account);
         }
 
+        System.out.print("Account ID: ");
         int accountId = scanner.nextInt();
 
         this.selectedAccount = checkingAccounts.stream()
@@ -488,19 +599,30 @@ public class UserInterface {
         double loanAmount = scanner.nextDouble();
         scanner.nextLine();
 
-        System.out.print("Enter term in months: ");
+        System.out.print("Enter term in months: (6 min/ 120 max)");
         int termMonths = scanner.nextInt();
         scanner.nextLine();
 
+        if (termMonths < 6 || termMonths > 120) {
+            System.out.println("Invalid term months. Please try again.");
+        }
+
         this.appController.getLoan((Customer) loggedInUser, selectedAccount, loanAmount, termMonths);
+        System.out.println("Loan taken successfully!");
     }
 
     /**
      * Lists all ongoing loans associated with the logged-in customer.
      */
     private void listAllLoans() {
+        int count = 0;
         for (Loan loan : this.appController.viewLoansStatus((Customer) loggedInUser)) {
             System.out.println(loan);
+            count++;
+        }
+
+        if (count == 0) {
+            System.out.println("No loans found.");
         }
     }
 
@@ -512,10 +634,23 @@ public class UserInterface {
         int loanId = scanner.nextInt();
         scanner.nextLine();
 
-        System.out.print("Enter payment amount: ");
-        double paymentAmount = scanner.nextDouble();
-        scanner.nextLine();
+        // Obținem informații despre creditul cu ID-ul specificat
+        Loan loan = this.appController.getLoanById(loanId, (Customer) loggedInUser);
 
-        this.appController.payLoan(loanId, (Customer) loggedInUser, selectedAccount, paymentAmount);
+        // Verificăm dacă creditul există și afișăm informațiile
+        if (loan != null) {
+            System.out.println("Loan Information:");
+            System.out.println(" - Remaining amount: " + loan.getLoanAmount());
+            System.out.println(" - Remaining term: " + loan.getTermMonths() + " months");
+
+            System.out.print("Enter payment amount: ");
+            double paymentAmount = scanner.nextDouble();
+            scanner.nextLine();
+
+            this.appController.payLoan(loanId, (Customer) loggedInUser, selectedAccount, paymentAmount);
+        } else {
+            System.out.println("Loan not found.");
+        }
     }
+
 }

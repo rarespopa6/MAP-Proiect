@@ -34,19 +34,22 @@ public class LoanService {
      * @param loan the loan to be paid off
      * @param payment the amount to be paid off
      */
-    public void payLoan(Customer borrower, Loan loan, double payment) {
-        if(payment > loan.getLoanAmount()) {
-            payment = loan.getLoanAmount();
-            System.out.println("Payment exceeds loan amount. Paying off loan.");
-        }
+    public double payLoan(Customer borrower, Loan loan, double payment) {
+        double paymentToBeProcessed = Math.min(payment, loan.getLoanAmount());
 
-        double remainingAmount = loan.getLoanAmount() - payment;
+        double remainingAmount = loan.getLoanAmount() - paymentToBeProcessed;
         loan.setLoanAmount(remainingAmount);
+
         if (remainingAmount <= 0) {
             borrower.removeLoan(loan);
             System.out.println("Loan fully paid off!");
+        } else {
+            System.out.println("Payed successfully " + paymentToBeProcessed + ". Remaining: " + remainingAmount);
         }
+
+        return paymentToBeProcessed;
     }
+
 
     /**
      * Retrieves all loans associated with a specified customer
@@ -56,5 +59,12 @@ public class LoanService {
      */
     public List<Loan> getLoans(Customer borrower) {
         return borrower.getLoanList();
+    }
+
+    public Loan getLoanById(int loanId, Customer borrower) {
+        return getLoans(borrower).stream()
+                .filter(l -> l.getId() == loanId)
+                .findFirst()
+                .orElse(null);
     }
 }

@@ -110,4 +110,46 @@ public class AccountService {
 
         account.setBalance(account.getBalance() - amount);
     }
+
+    public Account getAccountByid(int id){
+        return accountInMemoryRepository.read(id);
+    }
+
+    public void depositToAccount(int accountId, int userId, double amount) {
+        Account account = getAccountByid(accountId);
+
+        if (account == null) {
+            throw new RuntimeException("Account not found.");
+        }
+
+        boolean isOwner = account.getCustomers().stream()
+                .anyMatch(customer -> customer.getId() == userId);
+
+        if (!isOwner) {
+            throw new RuntimeException("This account does not belong to the user.");
+        }
+
+        addBalance(account, amount);
+    }
+
+    public void withdrawFromAccount(int accountId, int userId, double amount) {
+        Account account = getAccountByid(accountId);
+
+        if (account == null) {
+            throw new RuntimeException("Account not found.");
+        }
+
+        boolean isOwner = account.getCustomers().stream()
+                .anyMatch(customer -> customer.getId() == userId);
+
+        if (!isOwner) {
+            throw new RuntimeException("This account does not belong to the user.");
+        }
+
+        if (account.getBalance() < amount) {
+            throw new RuntimeException("Insufficient balance for withdrawal.");
+        }
+
+        subtractBalance(account, amount);
+    }
 }
