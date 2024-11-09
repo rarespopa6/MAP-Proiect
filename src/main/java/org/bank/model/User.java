@@ -2,6 +2,8 @@ package org.bank.model;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.util.Objects;
+
 /**
  * Abstract class representing a generic user in the banking system.
  * A user has an ID, first name, last name, email, phone number, and password.
@@ -172,5 +174,18 @@ public abstract class User implements Identifiable {
                 ", email='" + email + '\'' +
                 ", phoneNumber='" + phoneNumber + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return id == user.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

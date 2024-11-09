@@ -3,6 +3,7 @@ package org.bank.service;
 import org.bank.model.*;
 import org.bank.repository.InMemoryRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -12,6 +13,7 @@ import java.util.stream.Collectors;
  */
 public class AccountService {
     private final InMemoryRepository<Account> accountInMemoryRepository = new InMemoryRepository<>();
+    private InMemoryRepository<CoOwnershipRequest> coOwnershipRequestRepo = new InMemoryRepository<>();
 
     /**
      * Retrieves all accounts associated with a specified customer ID.
@@ -99,22 +101,52 @@ public class AccountService {
         accountInMemoryRepository.delete(accountId);
     }
 
+    /**
+     * Adds the specified amount to the balance of the provided account.
+     *
+     * @param account the account to which the balance will be added
+     * @param amount the amount to add to the account's balance
+     */
     public void addBalance(Account account, double amount) {
         account.setBalance(account.getBalance() + amount);
     }
 
+    /**
+     * Subtracts the specified amount from the balance of the provided account.
+     * If the balance is insufficient, throws an exception.
+     *
+     * @param account the account from which the balance will be subtracted
+     * @param amount the amount to subtract from the account's balance
+     * @throws RuntimeException if the account has insufficient funds
+     */
     public void subtractBalance(Account account, double amount) {
-        if(account.getBalance() < amount) {
+        if (account.getBalance() < amount) {
             throw new RuntimeException("Insufficient funds");
         }
 
         account.setBalance(account.getBalance() - amount);
     }
 
-    public Account getAccountByid(int id){
+    /**
+     * Retrieves the account with the specified ID.
+     *
+     * @param id the ID of the account to retrieve
+     * @return the account with the specified ID, or null if not found
+     */
+    public Account getAccountByid(int id) {
         return accountInMemoryRepository.read(id);
     }
 
+    /**
+     * Deposits the specified amount into the account with the given ID,
+     * provided the user is an owner of the account.
+     *
+     * @param accountId the ID of the account to deposit into
+     * @param userId the ID of the user making the deposit
+     * @param amount the amount to deposit
+     * @throws RuntimeException if the account is not found, the user is not an owner of the account,
+     *                          or if there are other issues with the deposit
+     */
     public void depositToAccount(int accountId, int userId, double amount) {
         Account account = getAccountByid(accountId);
 
@@ -132,6 +164,16 @@ public class AccountService {
         addBalance(account, amount);
     }
 
+    /**
+     * Withdraws the specified amount from the account with the given ID,
+     * provided the user is an owner of the account and has sufficient balance.
+     *
+     * @param accountId the ID of the account to withdraw from
+     * @param userId the ID of the user making the withdrawal
+     * @param amount the amount to withdraw
+     * @throws RuntimeException if the account is not found, the user is not an owner of the account,
+     *                          the account has insufficient balance, or if there are other issues with the withdrawal
+     */
     public void withdrawFromAccount(int accountId, int userId, double amount) {
         Account account = getAccountByid(accountId);
 
@@ -152,4 +194,69 @@ public class AccountService {
 
         subtractBalance(account, amount);
     }
+
+    /**
+     * Creates a co-ownership request for an account, with a specified requester and account owner.
+     *
+     * @param account the account to request co-ownership for
+     * @param requester the customer requesting co-ownership
+     * @param accountOwner the customer who owns the account
+     * @return the created co-ownership request
+     */
+    public CoOwnershipRequest createCoOwnershipRequest(Account account, Customer requester, Customer accountOwner) {
+        CoOwnershipRequest request = new CoOwnershipRequest(account, requester, accountOwner);
+        coOwnershipRequestRepo.create(request);
+        return request;
+    }
+
+    /**
+     * Retrieves all co-ownership requests for a specific customer that are not approved yet.
+     *
+     * @param customerId the ID of the customer to retrieve requests for
+     * @return a list of co-ownership requests for the customer that are not approved
+     */
+    public List<CoOwnershipRequest> getRequestsForCustomer(int customerId) {
+        List<CoOwnershipRequest> customerRequests = coOwnershipRequestRepo.findAll();
+        customerRequests.removeIf(request ->
+                request.getAccountOwner().getId() != customerId || request.isApproved());
+        return customerRequests;
+    }
+
+    /**
+     * Approves a co-ownership request by its ID and adds the requester to the account as a co-owner.
+     * Deletes the request after approval.
+     *
+     * @param requestId the ID of the co-ownership request to approve
+     * @throws RuntimeException if the request is not found, is already approved, or if there are issues with the approval
+     */
+    public void approveCoOwnershipRequest(int requestId) {
+        System.out.println("Approving Co-Ownership Request with ID: " + requestId);
+        CoOwnershipRequest request = coOwnershipRequestRepo.read(requestId);
+
+        if (request != null && !request.isApproved()) {
+            request.setApproved(true);
+            Account account = request.getAccount();
+
+            if (account != null) {
+
+                List<User> currentCustomers = account.getCustomers();
+                if (currentCustomers == null) {
+                    currentCustomers = new ArrayList<>();
+                }
+
+                if (request.getRequester() == null) {
+                    throw new IllegalStateException("Requester is null");
+                }
+
+                account.addCustomer(request.getRequester());
+            } else {
+                throw new RuntimeException("Account is null for request " + requestId);
+            }
+
+            coOwnershipRequestRepo.delete(request.getId());
+        } else {
+            throw new RuntimeException("Request not found or already approved.");
+        }
+    }
+
 }

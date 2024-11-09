@@ -134,7 +134,9 @@ public class UserInterface {
             System.out.println("3. Open New Account");
             System.out.println("4. Close Account");
             System.out.println("5. Loans");
-            System.out.println("6. Manage Account Funds");  // Noua opțiune adăugată
+            System.out.println("6. Manage Account Funds");
+            System.out.println("7. Apply for Co-Ownership");
+            System.out.println("8. View Co-Ownership Requests");
             System.out.println("0. Logout");
             System.out.print("Choose an option: ");
 
@@ -164,7 +166,13 @@ public class UserInterface {
                     setSelectedAccount();
                     break;
                 case 6:
-                    manageAccountFunds(); // Apelul metodei de gestionare a fondurilor
+                    manageAccountFunds();
+                    break;
+                case 7:
+                    applyForAccount();
+                    break;
+                case 8:
+                    viewCoOwnershipRequests();
                     break;
                 default:
                     System.out.println("Invalid option. Please try again.");
@@ -277,6 +285,58 @@ public class UserInterface {
         }
     }
 
+    /**
+     * Allows the logged-in user to apply for co-ownership of an account.
+     * The user is prompted to enter the account ID and the account owner's email.
+     * The application attempts to send a co-ownership request.
+     * If the request is successful, a success message is displayed, otherwise, an error message is shown.
+     */
+    private void applyForAccount() {
+        System.out.print("Enter account ID to request co-ownership: ");
+        int accountId = scanner.nextInt();
+        scanner.nextLine();
+
+        System.out.print("Enter account owner's email: ");
+        String accountOwnerEmail = scanner.nextLine();
+
+        try {
+            appController.applyForAccount(accountId, loggedInUser.getId(), accountOwnerEmail);
+            System.out.println("Co-ownership request sent successfully.");
+        } catch (RuntimeException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Displays all pending co-ownership requests for the logged-in user.
+     * If there are pending requests, the user can select a request to approve.
+     * Once a request is selected, it is approved, and a success message is shown.
+     * If no requests are pending, a message is displayed to inform the user.
+     */
+    private void viewCoOwnershipRequests() {
+        List<CoOwnershipRequest> requests = appController.viewPendingRequests(loggedInUser.getId());
+
+        if (requests.isEmpty()) {
+            System.out.println("No pending requests.");
+            return;
+        }
+
+        System.out.println("Pending Co-Ownership Requests:");
+        for (CoOwnershipRequest request : requests) {
+            System.out.println(request);
+        }
+
+        System.out.print("Enter request ID to approve: ");
+        int requestId = scanner.nextInt();
+        scanner.nextLine();
+
+        try {
+            appController.approveCoOwnership(requestId);
+            System.out.println("Request approved successfully.");
+        } catch (RuntimeException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
 
     /**
      * Displays the logged-in user's profile information.

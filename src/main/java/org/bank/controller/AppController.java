@@ -1,9 +1,6 @@
 package org.bank.controller;
 
-import org.bank.model.Account;
-import org.bank.model.Customer;
-import org.bank.model.Loan;
-import org.bank.model.User;
+import org.bank.model.*;
 import org.bank.service.AccountService;
 import org.bank.service.LoanService;
 import org.bank.service.UserService;
@@ -177,17 +174,81 @@ public class AppController {
         return this.loanService.getLoans(borrower);
     }
 
+    /**
+     * Retrieves a loan by its ID for a specific borrower.
+     *
+     * @param loanId the ID of the loan to retrieve
+     * @param borrower the customer who is the borrower of the loan
+     * @return the loan associated with the provided ID and borrower
+     * @throws RuntimeException if the loan cannot be found or other errors occur
+     */
     public Loan getLoanById(int loanId, Customer borrower) {
         return this.loanService.getLoanById(loanId, borrower);
     }
 
+    /**
+     * Deposits a specified amount of money into a user's account.
+     *
+     * @param accountId the ID of the account to deposit into
+     * @param userId the ID of the user making the deposit
+     * @param amount the amount of money to deposit
+     * @throws RuntimeException if the account or user is invalid or if other errors occur
+     */
     public void depositToAccount(int accountId, int userId, double amount) {
         accountService.depositToAccount(accountId, userId, amount);
     }
 
+    /**
+     * Withdraws a specified amount of money from a user's account.
+     *
+     * @param accountId the ID of the account to withdraw from
+     * @param userId the ID of the user making the withdrawal
+     * @param amount the amount of money to withdraw
+     * @throws RuntimeException if the account or user is invalid, or if there are insufficient funds in the account
+     */
     public void withdrawFromAccount(int accountId, int userId, double amount) {
         accountService.withdrawFromAccount(accountId, userId, amount);
     }
 
+    /**
+     * Allows a user to apply for co-ownership of an account.
+     *
+     * @param accountId the ID of the account the user wants to request co-ownership for
+     * @param requesterId the ID of the user requesting co-ownership
+     * @param accountOwnerEmail the email of the account owner
+     * @return the co-ownership request created for the specified account and user
+     * @throws RuntimeException if any invalid account, user, or owner details are provided
+     */
+    public CoOwnershipRequest applyForAccount(int accountId, int requesterId, String accountOwnerEmail) {
+        Account account = accountService.getAccountByid(accountId);
+        Customer requester = (Customer) userService.readUser(requesterId);
+        Customer accountOwner = (Customer) readUser(accountOwnerEmail);
+
+        if (account == null || requester == null || accountOwner == null) {
+            throw new RuntimeException("Invalid account or user details.");
+        }
+
+        return accountService.createCoOwnershipRequest(account, requester, accountOwner);
+    }
+
+    /**
+     * Retrieves a list of pending co-ownership requests for a specific account owner.
+     *
+     * @param accountOwnerId the ID of the account owner to view pending co-ownership requests for
+     * @return a list of co-ownership requests that are pending for the specified account owner
+     */
+    public List<CoOwnershipRequest> viewPendingRequests(int accountOwnerId) {
+        return accountService.getRequestsForCustomer(accountOwnerId);
+    }
+
+    /**
+     * Approves a pending co-ownership request.
+     *
+     * @param requestId the ID of the co-ownership request to approve
+     * @throws RuntimeException if the request cannot be found or other errors occur
+     */
+    public void approveCoOwnership(int requestId) {
+        accountService.approveCoOwnershipRequest(requestId);
+    }
 
 }
