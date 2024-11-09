@@ -1,8 +1,11 @@
 package org.bank.controller;
 
 import org.bank.model.Account;
+import org.bank.model.Customer;
+import org.bank.model.Loan;
 import org.bank.model.User;
 import org.bank.service.AccountService;
+import org.bank.service.LoanService;
 import org.bank.service.UserService;
 
 import java.util.List;
@@ -14,6 +17,7 @@ import java.util.List;
 public class AppController {
     private final UserService userService = new UserService();
     private final AccountService accountService = new AccountService();
+    private final LoanService loanService = new LoanService();
 
     /**
      * Creates a new customer and returns their unique identifier.
@@ -121,5 +125,54 @@ public class AppController {
      */
     public void closeAccount(int customerId, int accountId) {
         accountService.closeAccountForCustomer(customerId, accountId);
+    }
+
+    /**
+     * Makes a new loan for a customer and credits the loan amount to the specified account.
+     *
+     * @param borrower the customer who is taking out the loan
+     * @param account the account to which the loan amount will be credited
+     * @param amount the amount of the loan
+     * @param termMonths the term of the loan in months
+     */
+    public void getLoan(Customer borrower, Account account, double amount, int termMonths) {
+        this.loanService.getNewLoan(borrower, amount, termMonths);
+        this.accountService.addBalance(account, amount);
+    }
+
+    /**
+     * Pays off a loan for a customer and debits the payment amount from the specified account.
+     *
+     * @param loanId the id of the loan to be paid
+     * @param borrower the customer who is paying off the loan
+     * @param account the account from which the payment will be deducted
+     * @param paymentAmount the amount to be paid off
+     */
+    public void payLoan(int loanId, Customer borrower, Account account, double paymentAmount) {
+        Loan loan = this.loanService.getLoans(borrower).stream()
+                .filter(l -> l.getId() == loanId)
+                .findFirst()
+                .orElse(null);
+
+        if (loan != null) {
+            this.loanService.payLoan(borrower, loan, paymentAmount);
+
+            try {
+                this.accountService.subtractBalance(account, paymentAmount);
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+        else System.out.println("Loan not found.");
+    }
+
+    /**
+     * Retrieves all loans associated with a specified customer.
+     *
+     * @param borrower the customer whose loans are to be retrieved
+     * @return a list of loans associated with the specified customer
+     */
+    public List<Loan> viewLoansStatus(Customer borrower) {
+        return this.loanService.getLoans(borrower);
     }
 }
