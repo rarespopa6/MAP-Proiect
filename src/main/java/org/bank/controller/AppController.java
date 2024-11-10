@@ -272,6 +272,13 @@ public class AppController {
         accountService.makeTransaction(selectedAccount, destinationAccount, amount);
     }
 
+
+    /**
+     * Gets a list of logs associated with a specified account.
+     *
+     * @param account the account for which to retrieve logs
+     * @return a list of logs associated with the specified account
+     */
     public List<String> getLogsForAccount(Account account) {
         return this.accountService.getAccountLogs(account);
     }

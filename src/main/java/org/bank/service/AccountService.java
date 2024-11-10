@@ -291,6 +291,12 @@ public class AccountService {
         selectedAccount.getAccountLogs().addTransactionLog(destinationAccount, amount);
     }
 
+    /**
+     * Retrieves the logs for the specified account.
+     *
+     * @param account the account to get logs for
+     * @return a list of logs for the specified account
+     */
     public List<String> getAccountLogs(Account account) {
         return account.getAccountLogs().getLogs();
     }

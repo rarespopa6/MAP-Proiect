@@ -753,6 +753,9 @@ public class UserInterface {
         }
     }
 
+    /**
+     * Displays transactions made from the selected account.
+     */
     private void displayTransactions() {
         List<Transaction> transactions = appController.getTransactionsForAccount((CheckingAccount) selectedAccount);
         if (transactions.isEmpty()) {
@@ -765,6 +768,9 @@ public class UserInterface {
         }
     }
 
+    /**
+     * Prompts the customer to make a transaction and handles the transaction process.
+     */
     private void makeTransaction() {
         System.out.println("Available Accounts: ");
         List<Account> accounts = appController.getAllUsers().stream().filter(user -> user != loggedInUser)
@@ -796,6 +802,9 @@ public class UserInterface {
         }
     }
 
+    /**
+     * Displays the logs for the selected account.
+     */
     private void viewLogs() {
         try {
             int index = 0;
