@@ -1,5 +1,6 @@
 package org.bank.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -8,6 +9,7 @@ import java.util.List;
  */
 public class CheckingAccount extends Account {
     private double transactionFee;
+    private List<Transaction> transactionList;
 
     /**
      * Constructs a CheckingAccount instance with specified owners, balance, and transaction fee.
@@ -19,6 +21,7 @@ public class CheckingAccount extends Account {
     public CheckingAccount(List<User> owners, double balance, double transactionFee) {
         super(owners, balance);
         this.transactionFee = transactionFee;
+        this.transactionList = new ArrayList<>();
     }
 
     /**
@@ -37,6 +40,21 @@ public class CheckingAccount extends Account {
      */
     public void setTransactionFee(double transactionFee) {
         this.transactionFee = transactionFee;
+    }
+
+
+    /**
+     * @return the list of transactions made from this checking account
+     */
+    public List<Transaction> getTransactionList() {
+        return transactionList;
+    }
+
+    /**
+     * @param transactionList the list of transactions made from this checking account
+     */
+    public void setTransactionList(List<Transaction> transactionList) {
+        this.transactionList = transactionList;
     }
 
     /**

@@ -251,4 +251,24 @@ public class AppController {
         accountService.approveCoOwnershipRequest(requestId);
     }
 
+    /**
+     * Gets a list of transactions made from a specified account.
+     *
+     * @param account the account for which to retrieve transactions
+     * @return a list of transactions made from the specified account
+     */
+    public List<Transaction> getTransactionsForAccount(CheckingAccount account) {
+        return accountService.getTransactionsForAccount(account);
+    }
+
+    /**
+     * Initiates a transaction between two accounts.
+     *
+     * @param selectedAccount account from which the money is transferred
+     * @param destinationAccount account to which the money is transferred
+     * @param amount amount of money transferred
+     */
+    public void makeTransaction(CheckingAccount selectedAccount, CheckingAccount destinationAccount, double amount) {
+        accountService.makeTransaction(selectedAccount, destinationAccount, amount);
+    }
 }

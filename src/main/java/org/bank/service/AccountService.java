@@ -259,4 +259,29 @@ public class AccountService {
         }
     }
 
+    /**
+     * Returns a list of transactions for the specified account, sorted by date in descending order.
+     *
+     * @param account the account to retrieve transactions for
+     * @return a list of transactions for the specified account, sorted by date in descending order
+     */
+    public List<Transaction> getTransactionsForAccount(CheckingAccount account) {
+        return account.getTransactionList().stream()
+                .sorted((t1, t2) -> t2.getDate().compareTo(t1.getDate()))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Makes a transaction from one checking account to another, transferring the specified amount.
+     *
+     * @param selectedAccount the account to transfer the amount from
+     * @param destinationAccount the account to transfer the amount to
+     * @param amount the amount to transfer
+     */
+    public void makeTransaction(CheckingAccount selectedAccount,
+                                CheckingAccount destinationAccount, double amount) {
+        subtractBalance(selectedAccount, amount);
+        addBalance(destinationAccount, amount);
+        selectedAccount.getTransactionList().add(new Transaction(selectedAccount, destinationAccount, amount));
+    }
 }
