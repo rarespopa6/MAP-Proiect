@@ -138,6 +138,7 @@ public class UserInterface {
             System.out.println("7. Apply for Co-Ownership");
             System.out.println("8. View Co-Ownership Requests");
             System.out.println("9. Transactions");
+            System.out.println("10. View Account Logs");
             System.out.println("0. Logout");
             System.out.print("Choose an option: ");
 
@@ -179,6 +180,12 @@ public class UserInterface {
                 case 9:
                     setSelectedAccount();
                     transactionActions();
+                    break;
+                case 10:
+                    setSelectedAccount();
+                    if(selectedAccount != null) {
+                        viewLogs();
+                    }
                     break;
                 default:
                     System.out.println("Invalid option. Please try again.");
@@ -786,6 +793,17 @@ public class UserInterface {
             System.out.println("Transaction successful.");
         } catch (RuntimeException e) {
             System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    private void viewLogs() {
+        try {
+            int index = 0;
+            for(String log : this.appController.getLogsForAccount((CheckingAccount) selectedAccount)) {
+                System.out.println(++index + ". " + log);
+            }
+        }catch (RuntimeException e) {
+            System.out.println("Error: No logs available");
         }
     }
 

@@ -162,6 +162,7 @@ public class AccountService {
         }
 
         addBalance(account, amount);
+        account.getAccountLogs().addDepositLog(amount);
     }
 
     /**
@@ -193,6 +194,7 @@ public class AccountService {
         }
 
         subtractBalance(account, amount);
+        account.getAccountLogs().addWithdrawLog(amount);
     }
 
     /**
@@ -272,7 +274,8 @@ public class AccountService {
     }
 
     /**
-     * Makes a transaction from one checking account to another, transferring the specified amount.
+     * Makes a transaction from one checking account to another,
+     * transferring the specified amount and saves the transaction.
      *
      * @param selectedAccount the account to transfer the amount from
      * @param destinationAccount the account to transfer the amount to
@@ -282,6 +285,13 @@ public class AccountService {
                                 CheckingAccount destinationAccount, double amount) {
         subtractBalance(selectedAccount, amount);
         addBalance(destinationAccount, amount);
-        selectedAccount.getTransactionList().add(new Transaction(selectedAccount, destinationAccount, amount));
+        Transaction transaction = new Transaction(selectedAccount, destinationAccount, amount);
+        transaction.setId(selectedAccount.getTransactionList().size() + 1);
+        selectedAccount.getTransactionList().add(transaction);
+        selectedAccount.getAccountLogs().addTransactionLog(destinationAccount, amount);
+    }
+
+    public List<String> getAccountLogs(Account account) {
+        return account.getAccountLogs().getLogs();
     }
 }

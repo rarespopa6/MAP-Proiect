@@ -271,4 +271,8 @@ public class AppController {
     public void makeTransaction(CheckingAccount selectedAccount, CheckingAccount destinationAccount, double amount) {
         accountService.makeTransaction(selectedAccount, destinationAccount, amount);
     }
+
+    public List<String> getLogsForAccount(Account account) {
+        return this.accountService.getAccountLogs(account);
+    }
 }

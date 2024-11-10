@@ -13,6 +13,7 @@ public abstract class Account implements Identifiable {
     private List<User> customers;
     private double balance;
     private LocalDateTime creationTime;
+    private AccountLogs accountLogs;
 
     /**
      * Constructs an Account instance with specified customers and balance.
@@ -28,6 +29,7 @@ public abstract class Account implements Identifiable {
         }
         this.balance = balance;
         this.creationTime = LocalDateTime.now();
+        this.accountLogs = new AccountLogs(this);
     }
 
     /**
@@ -117,6 +119,24 @@ public abstract class Account implements Identifiable {
      */
     public void setCreationTime(LocalDateTime creationTime) {
         this.creationTime = creationTime;
+    }
+
+    /**
+     * Retrieves the list of logs for the account.
+     *
+     * @return logs of current account
+     */
+    public AccountLogs getAccountLogs() {
+        return accountLogs;
+    }
+
+    /**
+     * Sets the list of logs for the account.
+     *
+     * @param accountLogs the logs of current account
+     */
+    public void setAccountLogs(AccountLogs accountLogs) {
+        this.accountLogs = accountLogs;
     }
 
     /**

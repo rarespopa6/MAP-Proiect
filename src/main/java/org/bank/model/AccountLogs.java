@@ -32,14 +32,6 @@ public class AccountLogs {
         logs.add("Transaction: " + account.getId() + " -> " + destinationAccount.getId() + " : " + amount);
     }
 
-    public void addLoanLog(double amount) {
-        logs.add("Loan: " + amount);
-    }
-
-    public void addPaidLoanLog(double amount) {
-        logs.add("Paid Loan: " + amount);
-    }
-
     public void addDepositLog(double amount) {
         logs.add("Deposit: " + amount);
     }
