@@ -137,6 +137,8 @@ public class UserInterface {
             System.out.println("6. Manage Account Funds");
             System.out.println("7. Apply for Co-Ownership");
             System.out.println("8. View Co-Ownership Requests");
+            System.out.println("9. Transactions");
+            System.out.println("10. View Account Logs");
             System.out.println("0. Logout");
             System.out.print("Choose an option: ");
 
@@ -164,6 +166,7 @@ public class UserInterface {
                     break;
                 case 5:
                     setSelectedAccount();
+                    loanActions();
                     break;
                 case 6:
                     manageAccountFunds();
@@ -173,6 +176,16 @@ public class UserInterface {
                     break;
                 case 8:
                     viewCoOwnershipRequests();
+                    break;
+                case 9:
+                    setSelectedAccount();
+                    transactionActions();
+                    break;
+                case 10:
+                    setSelectedAccount();
+                    if(selectedAccount != null) {
+                        viewLogs();
+                    }
                     break;
                 default:
                     System.out.println("Invalid option. Please try again.");
@@ -584,7 +597,7 @@ public class UserInterface {
     }
 
     /**
-     * Allows the customer to select a checking account and perform loan-related actions.
+     * Allows the customer to select a checking account and perform loan-and transaction-related actions.
      */
     private void setSelectedAccount() {
         System.out.print("Select a Checking Account: ");
@@ -595,7 +608,7 @@ public class UserInterface {
                 .toList();
 
         if(checkingAccounts.isEmpty()) {
-            System.out.println("No checking accounts found. Open one first in order to get a loan.");
+            System.out.println("No checking accounts found. Open one first in order to get a loan or make a transaction.");
             return;
         }
 
@@ -611,8 +624,6 @@ public class UserInterface {
                 .filter(account -> account.getId() == accountId)
                 .findFirst()
                 .orElse(null);
-
-        loanActions();
     }
 
     /**
@@ -710,6 +721,98 @@ public class UserInterface {
             this.appController.payLoan(loanId, (Customer) loggedInUser, selectedAccount, paymentAmount);
         } else {
             System.out.println("Loan not found.");
+        }
+    }
+
+    private void transactionActions() {
+        while (true) {
+            System.out.println("\n--- Transaction Actions ---");
+            System.out.println("1. Make a transaction");
+            System.out.println("2. View previous transactions");
+            System.out.println("0. Back");
+            System.out.print("Choose an option: ");
+
+            int option = scanner.nextInt();
+            scanner.nextLine();
+
+            if (option == 0) {
+                break;
+            }
+
+            switch (option) {
+                case 1:
+                    makeTransaction();
+                    break;
+                case 2:
+                    displayTransactions();
+                    break;
+                default:
+                    System.out.println("Invalid option. Please try again.");
+                    break;
+            }
+        }
+    }
+
+    /**
+     * Displays transactions made from the selected account.
+     */
+    private void displayTransactions() {
+        List<Transaction> transactions = appController.getTransactionsForAccount((CheckingAccount) selectedAccount);
+        if (transactions.isEmpty()) {
+            System.out.println("No transactions found.");
+        } else {
+            System.out.println("Transactions:");
+            for (Transaction transaction : transactions) {
+                System.out.println(transaction);
+            }
+        }
+    }
+
+    /**
+     * Prompts the customer to make a transaction and handles the transaction process.
+     */
+    private void makeTransaction() {
+        System.out.println("Available Accounts: ");
+        List<Account> accounts = appController.getAllUsers().stream().filter(user -> user != loggedInUser)
+                .flatMap(user -> appController.getAccountsForCustomer(user.getId()).stream())
+                .toList();
+
+        for(Account account : accounts) {
+            System.out.println(account);
+        }
+
+        System.out.print("Enter destination account ID: ");
+        int destinationAccountId = scanner.nextInt();
+        scanner.nextLine();
+
+        System.out.print("Enter amount: ");
+        double amount = scanner.nextDouble();
+        scanner.nextLine();
+
+        CheckingAccount destinationAccount = (CheckingAccount) accounts.stream()
+                .filter(account -> account.getId() == destinationAccountId)
+                .findFirst()
+                .orElse(null);
+
+        try {
+            appController.makeTransaction((CheckingAccount) selectedAccount, destinationAccount, amount);
+            System.out.println("Transaction successful.");
+        } catch (RuntimeException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Displays the logs for the selected account.
+     */
+    private void viewLogs() {
+        try {
+            int index = 0;
+            for(String log : this.appController.getLogsForAccount((CheckingAccount) selectedAccount)) {
+                System.out.println(++index + ". " + log);
+            }
+        }catch (RuntimeException e) {
+            System.out.println("Error: No logs available");
         }
     }
 

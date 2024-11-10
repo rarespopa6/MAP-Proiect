@@ -162,6 +162,7 @@ public class AccountService {
         }
 
         addBalance(account, amount);
+        account.getAccountLogs().addDepositLog(amount);
     }
 
     /**
@@ -193,6 +194,7 @@ public class AccountService {
         }
 
         subtractBalance(account, amount);
+        account.getAccountLogs().addWithdrawLog(amount);
     }
 
     /**
@@ -259,4 +261,43 @@ public class AccountService {
         }
     }
 
+    /**
+     * Returns a list of transactions for the specified account, sorted by date in descending order.
+     *
+     * @param account the account to retrieve transactions for
+     * @return a list of transactions for the specified account, sorted by date in descending order
+     */
+    public List<Transaction> getTransactionsForAccount(CheckingAccount account) {
+        return account.getTransactionList().stream()
+                .sorted((t1, t2) -> t2.getDate().compareTo(t1.getDate()))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Makes a transaction from one checking account to another,
+     * transferring the specified amount and saves the transaction.
+     *
+     * @param selectedAccount the account to transfer the amount from
+     * @param destinationAccount the account to transfer the amount to
+     * @param amount the amount to transfer
+     */
+    public void makeTransaction(CheckingAccount selectedAccount,
+                                CheckingAccount destinationAccount, double amount) {
+        subtractBalance(selectedAccount, amount);
+        addBalance(destinationAccount, amount);
+        Transaction transaction = new Transaction(selectedAccount, destinationAccount, amount);
+        transaction.setId(selectedAccount.getTransactionList().size() + 1);
+        selectedAccount.getTransactionList().add(transaction);
+        selectedAccount.getAccountLogs().addTransactionLog(destinationAccount, amount);
+    }
+
+    /**
+     * Retrieves the logs for the specified account.
+     *
+     * @param account the account to get logs for
+     * @return a list of logs for the specified account
+     */
+    public List<String> getAccountLogs(Account account) {
+        return account.getAccountLogs().getLogs();
+    }
 }
