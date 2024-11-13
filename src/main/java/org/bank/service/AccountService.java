@@ -1,9 +1,12 @@
 package org.bank.service;
 
 import org.bank.model.*;
+import org.bank.repository.FileRepository;
 import org.bank.repository.InMemoryRepository;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -12,7 +15,7 @@ import java.util.stream.Collectors;
  * retrieve accounts for a specific customer, and close accounts.
  */
 public class AccountService {
-    private final InMemoryRepository<Account> accountInMemoryRepository = new InMemoryRepository<>();
+    private final FileRepository<Account> accountInMemoryRepository = new FileRepository<>("data/accounts.csv");
     private InMemoryRepository<CoOwnershipRequest> coOwnershipRequestRepo = new InMemoryRepository<>();
 
     /**
@@ -21,7 +24,8 @@ public class AccountService {
      * @param customerId the unique identifier of the customer whose accounts are to be retrieved
      * @return a list of accounts that belong to the specified customer
      */
-    public List<Account> getAccountsForCustomer(int customerId) {
+    public List<Account> getAccountsForCustomer(int customerId) throws IOException {
+//        accountInMemoryRepository.findAll().forEach(System.out::println);
         return accountInMemoryRepository.findAll().stream()
                 .filter(account -> account.getCustomers().stream().anyMatch(user -> user.getId() == customerId))
                 .collect(Collectors.toList());
@@ -47,6 +51,9 @@ public class AccountService {
             }
         }
 
+        System.out.println(newAccount);
+        //accountInMemoryRepository.writeUserAccountRelation(newAccount);
+
         return newAccount;
     }
 
@@ -69,6 +76,8 @@ public class AccountService {
                 ((Customer) customer).addAccount(newAccount);
             }
         }
+
+        //accountInMemoryRepository.writeUserAccountRelation(newAccount);
 
         return newAccount;
     }
@@ -98,7 +107,9 @@ public class AccountService {
             }
         });
 
-        accountInMemoryRepository.delete(accountId);
+        try {
+            accountInMemoryRepository.delete(accountId);
+        } catch (Exception e){}
     }
 
     /**
@@ -109,6 +120,7 @@ public class AccountService {
      */
     public void addBalance(Account account, double amount) {
         account.setBalance(account.getBalance() + amount);
+        accountInMemoryRepository.update(account);
     }
 
     /**
@@ -125,6 +137,7 @@ public class AccountService {
         }
 
         account.setBalance(account.getBalance() - amount);
+        accountInMemoryRepository.update(account);
     }
 
     /**
@@ -163,6 +176,7 @@ public class AccountService {
 
         addBalance(account, amount);
         account.getAccountLogs().addDepositLog(amount);
+        accountInMemoryRepository.update(account);
     }
 
     /**
@@ -195,6 +209,7 @@ public class AccountService {
 
         subtractBalance(account, amount);
         account.getAccountLogs().addWithdrawLog(amount);
+        accountInMemoryRepository.update(account);
     }
 
     /**
@@ -299,5 +314,31 @@ public class AccountService {
      */
     public List<String> getAccountLogs(Account account) {
         return account.getAccountLogs().getLogs();
+    }
+
+    /**
+     * Retrieves a list of accounts for a specific user, sorted by balance.
+     *
+     * @param userId The ID of the user.
+     * @return A list of accounts for the given user ID, sorted in descending order by balance.
+     */
+    public List<Account> getAccountsSortedByBalance(int userId) {
+        return accountInMemoryRepository.findAll().stream()
+                .filter(account -> account.getCustomers().stream().anyMatch(user -> user.getId() == userId))
+                .sorted(Comparator.comparingDouble(Account::getBalance).reversed())
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Retrieves a list of accounts for a specific user, sorted by creation date.
+     *
+     * @param userId The ID of the user.
+     * @return A list of accounts for the given user ID, sorted in descending order by creation date.
+     */
+    public List<Account> getAccountsSortedByCreationDate(int userId) {
+        return accountInMemoryRepository.findAll().stream()
+                .filter(account -> account.getCustomers().stream().anyMatch(user -> user.getId() == userId))
+                .sorted(Comparator.comparing(Account::getCreationTime).reversed())
+                .collect(Collectors.toList());
     }
 }

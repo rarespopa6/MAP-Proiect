@@ -3,6 +3,8 @@ package org.bank.ui;
 import org.bank.controller.AppController;
 import org.bank.model.*;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -62,9 +64,9 @@ public class UserInterface {
         System.out.print("Email: ");
         String email = scanner.nextLine();
 
-        User user = appController.readUser(email);
 
         try {
+            User user = appController.readUser(email);
             // Check if user exists based on user type
             if (user == null) {
                 System.out.println("User not found.");
@@ -118,7 +120,7 @@ public class UserInterface {
             System.out.println("Customer created with ID: " + generatedId);
             loggedInUser = appController.readUser(generatedId);
             customerActions();
-        } catch (RuntimeException e) {
+        } catch (RuntimeException | IOException e) {
             System.out.println("Error: " + e.getMessage());
         }
     }
@@ -139,6 +141,7 @@ public class UserInterface {
             System.out.println("8. View Co-Ownership Requests");
             System.out.println("9. Transactions");
             System.out.println("10. View Account Logs");
+            System.out.println("11. View Sorted Data");
             System.out.println("0. Logout");
             System.out.print("Choose an option: ");
 
@@ -187,6 +190,9 @@ public class UserInterface {
                         viewLogs();
                     }
                     break;
+                case 11:
+                    viewSortedData();
+                    break;
                 default:
                     System.out.println("Invalid option. Please try again.");
                     break;
@@ -200,7 +206,13 @@ public class UserInterface {
     private void manageAccountFunds() {
         if (loggedInUser instanceof Customer) {
             Customer customer = (Customer) loggedInUser;
-            List<Account> accounts = appController.getAccountsForCustomer(customer.getId());
+            List<Account> accounts = new ArrayList<>();
+
+            try {
+                accounts = appController.getAccountsForCustomer(customer.getId());
+            } catch (IOException e){
+                System.out.println("Error getting accounts for customer: " + customer.getId());
+            }
 
             if (accounts.isEmpty()) {
                 System.out.println("No accounts found.");
@@ -276,7 +288,7 @@ public class UserInterface {
 
         try {
             appController.depositToAccount(account.getId(), loggedInUser.getId(), amount);
-            System.out.println("Deposit successful. New balance: " + account.getBalance());
+            System.out.println("Deposit successful.");
         } catch (RuntimeException e) {
             System.out.println("Error: " + e.getMessage());
         }
@@ -292,7 +304,7 @@ public class UserInterface {
 
         try {
             appController.withdrawFromAccount(account.getId(), loggedInUser.getId(), amount);
-            System.out.println("Withdrawal successful. New balance: " + account.getBalance());
+            System.out.println("Withdrawal successful.");
         } catch (RuntimeException e) {
             System.out.println("Error: " + e.getMessage());
         }
@@ -315,7 +327,7 @@ public class UserInterface {
         try {
             appController.applyForAccount(accountId, loggedInUser.getId(), accountOwnerEmail);
             System.out.println("Co-ownership request sent successfully.");
-        } catch (RuntimeException e) {
+        } catch (RuntimeException | IOException e ) {
             System.out.println("Error: " + e.getMessage());
         }
     }
@@ -368,7 +380,14 @@ public class UserInterface {
     private void myAccounts() {
         if (loggedInUser instanceof Customer) {
             Customer customer = (Customer) loggedInUser;
-            List<Account> accounts = appController.getAccountsForCustomer(customer.getId());
+            List<Account> accounts = new ArrayList<>();
+
+            try {
+                  accounts = appController.getAccountsForCustomer(customer.getId());
+
+            } catch (IOException e){
+                System.out.println("Error getting accounts for customer: " + customer.getId());
+            }
 
             if (accounts.isEmpty()) {
                 System.out.println("No accounts found.");
@@ -516,7 +535,7 @@ public class UserInterface {
         try {
             int generatedId = appController.createCustomer(firstName, lastName, email, phoneNumber, password);
             System.out.println("Customer created with ID: " + generatedId);
-        } catch (RuntimeException e) {
+        } catch (RuntimeException | IOException e) {
             System.out.println("Customer with that email already exists.");
         }
     }
@@ -591,7 +610,14 @@ public class UserInterface {
      * Lists all users in the system.
      */
     private void listAllUsers() {
-        for (User user : appController.getAllUsers()) {
+        List<User> users = new ArrayList<>();
+        try {
+            users = appController.getAllUsers();
+        } catch (IOException e){
+            System.out.println("Unable to read user list.");
+        }
+
+        for (User user : users) {
             System.out.println(user);
         }
     }
@@ -602,10 +628,16 @@ public class UserInterface {
     private void setSelectedAccount() {
         System.out.print("Select a Checking Account: ");
 
-        List<Account> checkingAccounts = appController.getAccountsForCustomer(loggedInUser.getId())
-                .stream()
-                .filter(account -> account instanceof CheckingAccount)
-                .toList();
+        List<Account> checkingAccounts = new ArrayList<>();
+
+        try {
+            checkingAccounts = appController.getAccountsForCustomer(loggedInUser.getId())
+                    .stream()
+                    .filter(account -> account instanceof CheckingAccount)
+                    .toList();
+        } catch (IOException e){
+            System.out.println("Error getting accounts.");
+        }
 
         if(checkingAccounts.isEmpty()) {
             System.out.println("No checking accounts found. Open one first in order to get a loan or make a transaction.");
@@ -773,9 +805,20 @@ public class UserInterface {
      */
     private void makeTransaction() {
         System.out.println("Available Accounts: ");
-        List<Account> accounts = appController.getAllUsers().stream().filter(user -> user != loggedInUser)
-                .flatMap(user -> appController.getAccountsForCustomer(user.getId()).stream())
-                .toList();
+        List<Account> accounts = new ArrayList<>();
+        try {
+            accounts = appController.getAllUsers().stream().filter(user -> user != loggedInUser)
+                    .flatMap(user -> {
+                        try {
+                            return appController.getAccountsForCustomer(user.getId()).stream();
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    })
+                    .toList();
+        } catch (IOException e) {
+            System.out.println("Error reading available accounts.");
+        }
 
         for(Account account : accounts) {
             System.out.println(account);
@@ -816,4 +859,57 @@ public class UserInterface {
         }
     }
 
+    /**
+     * Displays actions available to view sorted data.
+     */
+    private void viewSortedData() {
+        while (true) {
+            System.out.println("\n--- Sorted Data ---");
+            System.out.println("1. View Accounts Sorted by Balance");
+            System.out.println("2. Sort by Creation Date (Newest First)");
+            System.out.println("0. Back");
+            System.out.print("Choose an option: ");
+
+            int option = scanner.nextInt();
+            scanner.nextLine();
+
+            if (option == 0) {
+                break;
+            }
+
+            switch (option) {
+                case 1:
+                    viewAccountsSortedByBalance();
+                    break;
+                case 2:
+                    viewAccountsSortedByCreationDate();
+                    break;
+                default:
+                    System.out.println("Invalid option. Please try again.");
+                    break;
+            }
+        }
+    }
+
+    /**
+     * Retrieves and displays accounts sorted by balance.
+     */
+    private void viewAccountsSortedByBalance() {
+        List<Account> sortedAccounts = appController.getAccountsSortedByBalance(loggedInUser.getId());
+        System.out.println("\n--- Accounts Sorted by Balance ---");
+        for (Account account : sortedAccounts) {
+            System.out.println(account);
+        }
+    }
+
+    /**
+     * Retrieves and displays accounts sorted by balance.
+     */
+    private void viewAccountsSortedByCreationDate(){
+        List<Account> sortedAccounts = appController.getAccountsSortedByCreationDate(loggedInUser.getId());
+        System.out.println("\n--- Accounts Sorted by Balance ---");
+        for (Account account : sortedAccounts) {
+            System.out.println(account);
+        }
+    }
 }
