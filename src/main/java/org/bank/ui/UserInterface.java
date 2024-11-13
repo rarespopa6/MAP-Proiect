@@ -141,6 +141,7 @@ public class UserInterface {
             System.out.println("8. View Co-Ownership Requests");
             System.out.println("9. Transactions");
             System.out.println("10. View Account Logs");
+            System.out.println("11. View Sorted Data");
             System.out.println("0. Logout");
             System.out.print("Choose an option: ");
 
@@ -188,6 +189,9 @@ public class UserInterface {
                     if(selectedAccount != null) {
                         viewLogs();
                     }
+                    break;
+                case 11:
+                    viewSortedData();
                     break;
                 default:
                     System.out.println("Invalid option. Please try again.");
@@ -855,4 +859,57 @@ public class UserInterface {
         }
     }
 
+    /**
+     * Displays actions available to view sorted data.
+     */
+    private void viewSortedData() {
+        while (true) {
+            System.out.println("\n--- Sorted Data ---");
+            System.out.println("1. View Accounts Sorted by Balance");
+            System.out.println("2. Sort by Creation Date (Newest First)");
+            System.out.println("0. Back");
+            System.out.print("Choose an option: ");
+
+            int option = scanner.nextInt();
+            scanner.nextLine();
+
+            if (option == 0) {
+                break;
+            }
+
+            switch (option) {
+                case 1:
+                    viewAccountsSortedByBalance();
+                    break;
+                case 2:
+                    viewAccountsSortedByCreationDate();
+                    break;
+                default:
+                    System.out.println("Invalid option. Please try again.");
+                    break;
+            }
+        }
+    }
+
+    /**
+     * Retrieves and displays accounts sorted by balance.
+     */
+    private void viewAccountsSortedByBalance() {
+        List<Account> sortedAccounts = appController.getAccountsSortedByBalance(loggedInUser.getId());
+        System.out.println("\n--- Accounts Sorted by Balance ---");
+        for (Account account : sortedAccounts) {
+            System.out.println(account);
+        }
+    }
+
+    /**
+     * Retrieves and displays accounts sorted by balance.
+     */
+    private void viewAccountsSortedByCreationDate(){
+        List<Account> sortedAccounts = appController.getAccountsSortedByCreationDate(loggedInUser.getId());
+        System.out.println("\n--- Accounts Sorted by Balance ---");
+        for (Account account : sortedAccounts) {
+            System.out.println(account);
+        }
+    }
 }

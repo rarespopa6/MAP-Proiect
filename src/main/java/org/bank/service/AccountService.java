@@ -6,6 +6,7 @@ import org.bank.repository.InMemoryRepository;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -313,5 +314,31 @@ public class AccountService {
      */
     public List<String> getAccountLogs(Account account) {
         return account.getAccountLogs().getLogs();
+    }
+
+    /**
+     * Retrieves a list of accounts for a specific user, sorted by balance.
+     *
+     * @param userId The ID of the user.
+     * @return A list of accounts for the given user ID, sorted in descending order by balance.
+     */
+    public List<Account> getAccountsSortedByBalance(int userId) {
+        return accountInMemoryRepository.findAll().stream()
+                .filter(account -> account.getCustomers().stream().anyMatch(user -> user.getId() == userId))
+                .sorted(Comparator.comparingDouble(Account::getBalance).reversed())
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Retrieves a list of accounts for a specific user, sorted by creation date.
+     *
+     * @param userId The ID of the user.
+     * @return A list of accounts for the given user ID, sorted in descending order by creation date.
+     */
+    public List<Account> getAccountsSortedByCreationDate(int userId) {
+        return accountInMemoryRepository.findAll().stream()
+                .filter(account -> account.getCustomers().stream().anyMatch(user -> user.getId() == userId))
+                .sorted(Comparator.comparing(Account::getCreationTime).reversed())
+                .collect(Collectors.toList());
     }
 }

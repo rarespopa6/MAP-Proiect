@@ -202,13 +202,15 @@ public class FileRepository<T extends Identifiable> implements IRepository<T> {
 
             List<User> customers = loadCustomersForAccount(id, new FileRepository<>("data/users.csv"));
             if (accountType.equals("CheckingAccount")) {
-                T newAccount = (T) new CheckingAccount(customers, balance, 0.5);
+                CheckingAccount newAccount = new CheckingAccount(customers, balance, 0.5);
                 newAccount.setId(id);
-                return newAccount;
-            } else if (accountType.equals("SavingsAccount")) {
-                T newAccount = (T) new SavingsAccount(customers, balance, 4.5);
+                newAccount.setCreationTime(creationTime);
+                return (T) newAccount;
+        } else if (accountType.equals("SavingsAccount")) {
+                SavingsAccount newAccount =  new SavingsAccount(customers, balance, 4.5);
                 newAccount.setId(id);
-                return newAccount;
+                newAccount.setCreationTime(creationTime);
+                return (T) newAccount;
             } else {
                 throw new IllegalArgumentException("Unknown account type: " + accountType);
             }

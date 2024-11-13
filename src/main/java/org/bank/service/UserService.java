@@ -9,7 +9,9 @@ import org.bank.repository.InMemoryRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Service class that provides functionality for managing users, including customers and employees.
@@ -173,5 +175,17 @@ public class UserService {
      */
     private boolean userExists(int id) {
         return userInMemoryRepository.read(id) != null;
+    }
+
+    /**
+     * Retrieves a list of users sorted by name.
+     *
+     * @return A list of users sorted alphabetically by first and last name.
+     */
+    public List<User> getUsersSortedByName() {
+        return userInMemoryRepository.findAll().stream()
+                .sorted(Comparator.comparing(User::getFirstName)
+                        .thenComparing(User::getLastName))
+                .collect(Collectors.toList());
     }
 }

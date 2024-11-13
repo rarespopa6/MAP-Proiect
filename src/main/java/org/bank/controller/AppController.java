@@ -283,4 +283,25 @@ public class AppController {
     public List<String> getLogsForAccount(Account account) {
         return this.accountService.getAccountLogs(account);
     }
+
+    /**
+     * Retrieves accounts sorted by balance for a specific user.
+     *
+     * @param userId The ID of the user.
+     * @return A list of accounts sorted by balance.
+     */
+    public List<Account> getAccountsSortedByBalance(int userId) {
+        return accountService.getAccountsSortedByBalance(userId);
+    }
+
+    /**
+     * Retrieves accounts sorted by creation date for a specific user.
+     *
+     * @param userId The ID of the user.
+     * @return A list of accounts sorted by creation date.
+     */
+    public List<Account> getAccountsSortedByCreationDate(int userId) {
+        return accountService.getAccountsSortedByCreationDate(userId);
+    }
+
 }
