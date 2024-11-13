@@ -1,8 +1,10 @@
 package org.bank.service;
 
 import org.bank.model.*;
+import org.bank.repository.FileRepository;
 import org.bank.repository.InMemoryRepository;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -12,7 +14,7 @@ import java.util.stream.Collectors;
  * retrieve accounts for a specific customer, and close accounts.
  */
 public class AccountService {
-    private final InMemoryRepository<Account> accountInMemoryRepository = new InMemoryRepository<>();
+    private final FileRepository<Account> accountInMemoryRepository = new FileRepository<>("data/accounts.csv");
     private InMemoryRepository<CoOwnershipRequest> coOwnershipRequestRepo = new InMemoryRepository<>();
 
     /**
@@ -21,7 +23,8 @@ public class AccountService {
      * @param customerId the unique identifier of the customer whose accounts are to be retrieved
      * @return a list of accounts that belong to the specified customer
      */
-    public List<Account> getAccountsForCustomer(int customerId) {
+    public List<Account> getAccountsForCustomer(int customerId) throws IOException {
+        accountInMemoryRepository.findAll().forEach(System.out::println);
         return accountInMemoryRepository.findAll().stream()
                 .filter(account -> account.getCustomers().stream().anyMatch(user -> user.getId() == customerId))
                 .collect(Collectors.toList());
@@ -47,6 +50,8 @@ public class AccountService {
             }
         }
 
+        //accountInMemoryRepository.writeUserAccountRelation(newAccount);
+
         return newAccount;
     }
 
@@ -69,6 +74,8 @@ public class AccountService {
                 ((Customer) customer).addAccount(newAccount);
             }
         }
+
+       // accountInMemoryRepository.writeUserAccountRelation(newAccount);
 
         return newAccount;
     }
@@ -251,6 +258,7 @@ public class AccountService {
                 }
 
                 account.addCustomer(request.getRequester());
+                accountInMemoryRepository.writeUserAccountRelation(account);
             } else {
                 throw new RuntimeException("Account is null for request " + requestId);
             }

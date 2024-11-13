@@ -5,6 +5,7 @@ import org.bank.service.AccountService;
 import org.bank.service.LoanService;
 import org.bank.service.UserService;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -26,7 +27,7 @@ public class AppController {
      * @param password    the password for the customer account
      * @return the unique identifier of the newly created customer
      */
-    public int createCustomer(String firstName, String lastName, String email, String phoneNumber, String password) {
+    public int createCustomer(String firstName, String lastName, String email, String phoneNumber, String password) throws IOException {
         return userService.createCustomer(firstName, lastName, email, phoneNumber, password);
     }
 
@@ -46,7 +47,7 @@ public class AppController {
      * @param email the email address of the user
      * @return the User object if found, null otherwise
      */
-    public User readUser(String email) {
+    public User readUser(String email) throws IOException {
         return userService.getUserByEmail(email);
     }
 
@@ -78,7 +79,7 @@ public class AppController {
      *
      * @return a list of User objects
      */
-    public List<User> getAllUsers() {
+    public List<User> getAllUsers() throws IOException {
         return userService.getAllUsers();
     }
 
@@ -88,7 +89,7 @@ public class AppController {
      * @param customerId the unique identifier of the customer
      * @return a list of Account objects associated with the customer
      */
-    public List<Account> getAccountsForCustomer(int customerId) {
+    public List<Account> getAccountsForCustomer(int customerId) throws IOException {
         return accountService.getAccountsForCustomer(customerId);
     }
 
@@ -219,7 +220,7 @@ public class AppController {
      * @return the co-ownership request created for the specified account and user
      * @throws RuntimeException if any invalid account, user, or owner details are provided
      */
-    public CoOwnershipRequest applyForAccount(int accountId, int requesterId, String accountOwnerEmail) {
+    public CoOwnershipRequest applyForAccount(int accountId, int requesterId, String accountOwnerEmail) throws IOException {
         Account account = accountService.getAccountByid(accountId);
         Customer requester = (Customer) userService.readUser(requesterId);
         Customer accountOwner = (Customer) readUser(accountOwnerEmail);

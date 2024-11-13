@@ -4,9 +4,11 @@ import org.bank.model.Account;
 import org.bank.model.Customer;
 import org.bank.model.Employee;
 import org.bank.model.User;
+import org.bank.repository.FileRepository;
 import org.bank.repository.InMemoryRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -14,7 +16,7 @@ import java.util.List;
  * This service handles user creation, retrieval, updating, and deletion, as well as account management for customers.
  */
 public class UserService {
-    private final InMemoryRepository<User> userInMemoryRepository = new InMemoryRepository<>();
+    private final FileRepository<User> userInMemoryRepository = new FileRepository<>("data/users.csv");
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     /**
@@ -30,7 +32,7 @@ public class UserService {
      * @param role the role of the employee.
      * @throws RuntimeException if an employee with the specified email already exists.
      */
-    public void createEmployee(int id, String firstName, String lastName, String email, String phoneNumber, String password, int salary, String role) {
+    public void createEmployee(int id, String firstName, String lastName, String email, String phoneNumber, String password, int salary, String role) throws IOException {
         if (userExistsByEmail(email)) {
             throw new RuntimeException("An employee with this email already exists");
         }
@@ -51,7 +53,7 @@ public class UserService {
      * @return the unique ID assigned to the newly created customer.
      * @throws RuntimeException if a customer with the specified email already exists.
      */
-    public int createCustomer(String firstName, String lastName, String email, String phoneNumber, String password) {
+    public int createCustomer(String firstName, String lastName, String email, String phoneNumber, String password) throws IOException {
         if (userExistsByEmail(email)) {
             throw new RuntimeException("A customer with this email already exists");
         }
@@ -116,7 +118,7 @@ public class UserService {
      *
      * @return a list of all users.
      */
-    public List<User> getAllUsers() {
+    public List<User> getAllUsers() throws IOException {
         return userInMemoryRepository.findAll();
     }
 
@@ -143,7 +145,7 @@ public class UserService {
      * @param email the email address of the user to find.
      * @return the user with the specified email, or {@code null} if not found.
      */
-    public User getUserByEmail(String email) {
+    public User getUserByEmail(String email) throws IOException {
         return userInMemoryRepository.findAll().stream()
                 .filter(u -> u.getEmail().equals(email))
                 .findFirst()
@@ -156,7 +158,7 @@ public class UserService {
      * @param email the email address to check.
      * @return {@code true} if a user with the specified email exists, {@code false} otherwise.
      */
-    private boolean userExistsByEmail(String email) {
+    private boolean userExistsByEmail(String email) throws IOException {
         return userInMemoryRepository.findAll().stream()
                 .anyMatch(u -> u.getEmail().equals(email));
     }

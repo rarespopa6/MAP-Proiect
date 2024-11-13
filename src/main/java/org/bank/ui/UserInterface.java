@@ -3,6 +3,8 @@ package org.bank.ui;
 import org.bank.controller.AppController;
 import org.bank.model.*;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -62,9 +64,9 @@ public class UserInterface {
         System.out.print("Email: ");
         String email = scanner.nextLine();
 
-        User user = appController.readUser(email);
 
         try {
+            User user = appController.readUser(email);
             // Check if user exists based on user type
             if (user == null) {
                 System.out.println("User not found.");
@@ -118,7 +120,7 @@ public class UserInterface {
             System.out.println("Customer created with ID: " + generatedId);
             loggedInUser = appController.readUser(generatedId);
             customerActions();
-        } catch (RuntimeException e) {
+        } catch (RuntimeException | IOException e) {
             System.out.println("Error: " + e.getMessage());
         }
     }
@@ -200,7 +202,13 @@ public class UserInterface {
     private void manageAccountFunds() {
         if (loggedInUser instanceof Customer) {
             Customer customer = (Customer) loggedInUser;
-            List<Account> accounts = appController.getAccountsForCustomer(customer.getId());
+            List<Account> accounts = new ArrayList<>();
+
+            try {
+                accounts = appController.getAccountsForCustomer(customer.getId());
+            } catch (IOException e){
+                System.out.println("Error getting accounts for customer: " + customer.getId());
+            }
 
             if (accounts.isEmpty()) {
                 System.out.println("No accounts found.");
@@ -315,7 +323,7 @@ public class UserInterface {
         try {
             appController.applyForAccount(accountId, loggedInUser.getId(), accountOwnerEmail);
             System.out.println("Co-ownership request sent successfully.");
-        } catch (RuntimeException e) {
+        } catch (RuntimeException | IOException e ) {
             System.out.println("Error: " + e.getMessage());
         }
     }
@@ -368,7 +376,14 @@ public class UserInterface {
     private void myAccounts() {
         if (loggedInUser instanceof Customer) {
             Customer customer = (Customer) loggedInUser;
-            List<Account> accounts = appController.getAccountsForCustomer(customer.getId());
+            List<Account> accounts = new ArrayList<>();
+
+            try {
+                  accounts = appController.getAccountsForCustomer(customer.getId());
+
+            } catch (IOException e){
+                System.out.println("Error getting accounts for customer: " + customer.getId());
+            }
 
             if (accounts.isEmpty()) {
                 System.out.println("No accounts found.");
@@ -516,7 +531,7 @@ public class UserInterface {
         try {
             int generatedId = appController.createCustomer(firstName, lastName, email, phoneNumber, password);
             System.out.println("Customer created with ID: " + generatedId);
-        } catch (RuntimeException e) {
+        } catch (RuntimeException | IOException e) {
             System.out.println("Customer with that email already exists.");
         }
     }
@@ -591,7 +606,14 @@ public class UserInterface {
      * Lists all users in the system.
      */
     private void listAllUsers() {
-        for (User user : appController.getAllUsers()) {
+        List<User> users = new ArrayList<>();
+        try {
+            users = appController.getAllUsers();
+        } catch (IOException e){
+            System.out.println("Unable to read user list.");
+        }
+
+        for (User user : users) {
             System.out.println(user);
         }
     }
@@ -602,10 +624,16 @@ public class UserInterface {
     private void setSelectedAccount() {
         System.out.print("Select a Checking Account: ");
 
-        List<Account> checkingAccounts = appController.getAccountsForCustomer(loggedInUser.getId())
-                .stream()
-                .filter(account -> account instanceof CheckingAccount)
-                .toList();
+        List<Account> checkingAccounts = new ArrayList<>();
+
+        try {
+            checkingAccounts = appController.getAccountsForCustomer(loggedInUser.getId())
+                    .stream()
+                    .filter(account -> account instanceof CheckingAccount)
+                    .toList();
+        } catch (IOException e){
+            System.out.println("Error getting accounts.");
+        }
 
         if(checkingAccounts.isEmpty()) {
             System.out.println("No checking accounts found. Open one first in order to get a loan or make a transaction.");
@@ -773,9 +801,20 @@ public class UserInterface {
      */
     private void makeTransaction() {
         System.out.println("Available Accounts: ");
-        List<Account> accounts = appController.getAllUsers().stream().filter(user -> user != loggedInUser)
-                .flatMap(user -> appController.getAccountsForCustomer(user.getId()).stream())
-                .toList();
+        List<Account> accounts = new ArrayList<>();
+        try {
+            accounts = appController.getAllUsers().stream().filter(user -> user != loggedInUser)
+                    .flatMap(user -> {
+                        try {
+                            return appController.getAccountsForCustomer(user.getId()).stream();
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    })
+                    .toList();
+        } catch (IOException e) {
+            System.out.println("Error reading available accounts.");
+        }
 
         for(Account account : accounts) {
             System.out.println(account);
