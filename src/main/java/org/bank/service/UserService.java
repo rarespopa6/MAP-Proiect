@@ -110,7 +110,9 @@ public class UserService {
         if (!userExists(id)) {
             throw new RuntimeException("User not found for deletion");
         }
-        userInMemoryRepository.delete(id);
+        try {
+            userInMemoryRepository.delete(id);
+        } catch (Exception e){throw new RuntimeException("Can not delete user");}
     }
 
     /**

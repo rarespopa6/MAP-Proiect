@@ -24,7 +24,7 @@ public class AccountService {
      * @return a list of accounts that belong to the specified customer
      */
     public List<Account> getAccountsForCustomer(int customerId) throws IOException {
-        accountInMemoryRepository.findAll().forEach(System.out::println);
+//        accountInMemoryRepository.findAll().forEach(System.out::println);
         return accountInMemoryRepository.findAll().stream()
                 .filter(account -> account.getCustomers().stream().anyMatch(user -> user.getId() == customerId))
                 .collect(Collectors.toList());
@@ -50,6 +50,7 @@ public class AccountService {
             }
         }
 
+        System.out.println(newAccount);
         //accountInMemoryRepository.writeUserAccountRelation(newAccount);
 
         return newAccount;
@@ -75,7 +76,7 @@ public class AccountService {
             }
         }
 
-       // accountInMemoryRepository.writeUserAccountRelation(newAccount);
+        //accountInMemoryRepository.writeUserAccountRelation(newAccount);
 
         return newAccount;
     }
@@ -105,7 +106,9 @@ public class AccountService {
             }
         });
 
-        accountInMemoryRepository.delete(accountId);
+        try {
+            accountInMemoryRepository.delete(accountId);
+        } catch (Exception e){}
     }
 
     /**
@@ -116,6 +119,7 @@ public class AccountService {
      */
     public void addBalance(Account account, double amount) {
         account.setBalance(account.getBalance() + amount);
+        accountInMemoryRepository.update(account);
     }
 
     /**
@@ -132,6 +136,7 @@ public class AccountService {
         }
 
         account.setBalance(account.getBalance() - amount);
+        accountInMemoryRepository.update(account);
     }
 
     /**
@@ -170,6 +175,7 @@ public class AccountService {
 
         addBalance(account, amount);
         account.getAccountLogs().addDepositLog(amount);
+        accountInMemoryRepository.update(account);
     }
 
     /**
@@ -202,6 +208,7 @@ public class AccountService {
 
         subtractBalance(account, amount);
         account.getAccountLogs().addWithdrawLog(amount);
+        accountInMemoryRepository.update(account);
     }
 
     /**
@@ -258,7 +265,6 @@ public class AccountService {
                 }
 
                 account.addCustomer(request.getRequester());
-                accountInMemoryRepository.writeUserAccountRelation(account);
             } else {
                 throw new RuntimeException("Account is null for request " + requestId);
             }

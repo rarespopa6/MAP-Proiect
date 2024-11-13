@@ -284,7 +284,7 @@ public class UserInterface {
 
         try {
             appController.depositToAccount(account.getId(), loggedInUser.getId(), amount);
-            System.out.println("Deposit successful. New balance: " + account.getBalance());
+            System.out.println("Deposit successful.");
         } catch (RuntimeException e) {
             System.out.println("Error: " + e.getMessage());
         }
@@ -300,7 +300,7 @@ public class UserInterface {
 
         try {
             appController.withdrawFromAccount(account.getId(), loggedInUser.getId(), amount);
-            System.out.println("Withdrawal successful. New balance: " + account.getBalance());
+            System.out.println("Withdrawal successful.");
         } catch (RuntimeException e) {
             System.out.println("Error: " + e.getMessage());
         }

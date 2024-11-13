@@ -1,6 +1,10 @@
 package org.bank.repository;
 
-import org.bank.model.Identifiable; /**
+import org.bank.model.Identifiable;
+
+import java.io.IOException;
+
+/**
  * Interface for a generic repository that provides CRUD (Create, Read, Update, Delete) operations.
  *
  * @param <T> The type of objects to be managed by this repository - Identifiable.
@@ -35,5 +39,5 @@ public interface IRepository<T extends Identifiable> {
      *
      * @param id the unique identifier of the object to delete.
      */
-    void delete(int id);
+    void delete(int id) throws IOException;
 }
