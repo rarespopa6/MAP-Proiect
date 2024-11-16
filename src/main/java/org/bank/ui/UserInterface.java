@@ -867,6 +867,8 @@ public class UserInterface {
             System.out.println("\n--- Sorted Data ---");
             System.out.println("1. View Accounts Sorted by Balance");
             System.out.println("2. Sort by Creation Date (Newest First)");
+            System.out.println("3. View Transactions Sorted by Date");
+            System.out.println("4. View Loans Sorted by Amount");
             System.out.println("0. Back");
             System.out.print("Choose an option: ");
 
@@ -884,6 +886,13 @@ public class UserInterface {
                 case 2:
                     viewAccountsSortedByCreationDate();
                     break;
+                case 3:
+                    viewTransactionsSortedByDate();
+                    break;
+                case 4:
+                    viewLoansSortedByAmount();
+                    break;
+
                 default:
                     System.out.println("Invalid option. Please try again.");
                     break;
@@ -910,6 +919,22 @@ public class UserInterface {
         System.out.println("\n--- Accounts Sorted by Balance ---");
         for (Account account : sortedAccounts) {
             System.out.println(account);
+        }
+    }
+
+    private void viewTransactionsSortedByDate() {
+        List<Transaction> sortedTransactions = appController.getTransactionsSortedByDate((CheckingAccount)selectedAccount);
+        System.out.println("\n--- Transactions Sorted by Date ---");
+        for (Transaction transaction : sortedTransactions) {
+            System.out.println(transaction);
+        }
+    }
+
+    private void viewLoansSortedByAmount() {
+        List<Loan> sortedLoans = appController.getLoansSortedByAmount((Customer)loggedInUser);
+        System.out.println("\n--- Loans Sorted by Amount ---");
+        for (Loan loan : sortedLoans) {
+            System.out.println(loan);
         }
     }
 }

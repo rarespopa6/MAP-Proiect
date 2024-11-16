@@ -67,4 +67,10 @@ public class LoanService {
                 .findFirst()
                 .orElse(null);
     }
+
+    public List<Loan> getLoansSortedByAmount(Customer borrower) {
+        List<Loan> loans = getLoans(borrower);
+        loans.sort((l1, l2) -> Double.compare(l1.getLoanAmount(), l2.getLoanAmount()));
+        return loans;
+    }
 }

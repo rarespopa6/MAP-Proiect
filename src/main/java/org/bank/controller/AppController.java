@@ -304,4 +304,24 @@ public class AppController {
         return accountService.getAccountsSortedByCreationDate(userId);
     }
 
+    /**
+     * Retrieves transactions sorted by date for a specific account.
+     *
+     * @param account The account for which to retrieve transactions.
+     * @return A list of transactions sorted by date.
+     */
+    public List<Transaction> getTransactionsSortedByDate(CheckingAccount account) {
+        return accountService.getTransactionsSortedByDate(account);
+    }
+
+    /**
+     * Retrieves loans sorted by amount for a specific borrower.
+     *
+     * @param borrower the customer who is taking out the loan
+     * @return a list of loans with the specified amount and borrower
+     */
+    public List<Loan> getLoansSortedByAmount(Customer borrower) {
+        return loanService.getLoansSortedByAmount(borrower);
+    }
+
 }

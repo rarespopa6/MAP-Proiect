@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -282,9 +283,10 @@ public class AccountService {
      * @param account the account to retrieve transactions for
      * @return a list of transactions for the specified account, sorted by date in descending order
      */
-    public List<Transaction> getTransactionsForAccount(CheckingAccount account) {
+    public List<Transaction> getTransactionsSortedByDate(CheckingAccount account) {
         return account.getTransactionList().stream()
-                .sorted((t1, t2) -> t2.getDate().compareTo(t1.getDate()))
+                .filter(Objects::nonNull)
+                .sorted(Comparator.comparing(Transaction::getDate).reversed())
                 .collect(Collectors.toList());
     }
 
@@ -340,5 +342,15 @@ public class AccountService {
                 .filter(account -> account.getCustomers().stream().anyMatch(user -> user.getId() == userId))
                 .sorted(Comparator.comparing(Account::getCreationTime).reversed())
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Retrieves a list of transactions for the specified account.
+     *
+     * @param account the account to get transactions for
+     * @return a list of transactions for the specified account
+     */
+    public List<Transaction> getTransactionsForAccount(CheckingAccount account) {
+        return account.getTransactionList();
     }
 }
