@@ -936,8 +936,6 @@ public class UserInterface {
             System.out.println("\n--- Sorted Data ---");
             System.out.println("1. View Accounts Sorted by Balance");
             System.out.println("2. Sort by Creation Date (Newest First)");
-            System.out.println("3. View Transactions Sorted by Date");
-            System.out.println("4. View Loans Sorted by Amount");
             System.out.println("0. Back");
             System.out.print("Choose an option: ");
 
@@ -954,12 +952,6 @@ public class UserInterface {
                     break;
                 case 2:
                     viewAccountsSortedByCreationDate();
-                    break;
-                case 3:
-                    viewTransactionsSortedByDate();
-                    break;
-                case 4:
-                    viewLoansSortedByAmount();
                     break;
 
                 default:
