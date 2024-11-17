@@ -10,6 +10,7 @@ import java.util.List;
 public class Customer extends User {
     private List<Account> accountList;
     private List<Loan> loanList;
+    private List<CreditCard> creditCardList;
 
     /**
      * Constructs a Customer instance with specified details, including a unique identifier.
@@ -112,6 +113,19 @@ public class Customer extends User {
         this.loanList = loanList;
     }
 
+    /**
+     * @return the list of credit cards owned by the customer
+     */
+    public List<CreditCard> getCreditCardList() {
+        return creditCardList;
+    }
+
+    /**
+     * @param creditCardList the list of credit cards to set
+     */
+    public void setCreditCardList(List<CreditCard> creditCardList) {
+        this.creditCardList = creditCardList;
+    }
 
     /**
      * Returns a string representation of the customer, including personal details.

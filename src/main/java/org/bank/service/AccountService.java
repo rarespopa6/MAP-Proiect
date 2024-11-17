@@ -5,10 +5,7 @@ import org.bank.repository.FileRepository;
 import org.bank.repository.InMemoryRepository;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -18,6 +15,7 @@ import java.util.stream.Collectors;
 public class AccountService {
     private final FileRepository<Account> accountInMemoryRepository = new FileRepository<>("data/accounts.csv");
     private InMemoryRepository<CoOwnershipRequest> coOwnershipRequestRepo = new InMemoryRepository<>();
+    private List<CreditCard> creditCardList = new ArrayList<>();
 
     /**
      * Retrieves all accounts associated with a specified customer ID.
@@ -352,5 +350,92 @@ public class AccountService {
      */
     public List<Transaction> getTransactionsForAccount(CheckingAccount account) {
         return account.getTransactionList();
+    }
+
+    /**
+     * Retrieves a list of accounts with a balance above the specified amount.
+     *
+     * @param amount the amount to filter accounts by
+     * @return a list of accounts with a balance above the specified amount
+     */
+    public List<Account> getAccountsWithBalanceAboveAmount(int userId, double amount) {
+        return accountInMemoryRepository.findAll().stream()
+                .filter(account -> account.getCustomers().stream().anyMatch(user -> user.getId() == userId))
+                .filter(account -> account.getBalance() > amount)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Retrieves a list of transactions for the specified account that are above the specified amount.
+     *
+     * @param account the account to get transactions for
+     * @param amount the amount to filter transactions by
+     * @return a list of transactions for the specified account that are above the specified amount
+     */
+    public List<Transaction> getTransactionsAboveAmount(CheckingAccount account, double amount) {
+        return account.getTransactionList().stream()
+                .filter(transaction -> transaction.getAmount() > amount)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Function to generate a random 16-digit card number.
+     *
+     * @return a random 16-digit card number
+     */
+    public String generateRandomCardNumber() {
+        Random random = new Random();
+        StringBuilder cardNumber = new StringBuilder();
+        for (int i = 0; i < 16; i++) {
+            cardNumber.append(random.nextInt(10));
+        }
+
+        return cardNumber.toString();
+    }
+
+    /**
+     * Function to generate a random 3-digit CVV number.
+     *
+     * @return a random 3-digit CVV number
+     */
+    public String generateRandomCVV() {
+        Random random = new Random();
+        StringBuilder cvv = new StringBuilder();
+        for (int i = 0; i < 3; i++) {
+            cvv.append(random.nextInt(10));
+        }
+
+        return cvv.toString();
+    }
+
+    /**
+     * Generates a credit card for a customer and links it to an account.
+     *
+     * @param customer the customer to generate a card for
+     * @param account the account to link a card with
+     */
+    public void generateCardForAccount(Customer customer, Account account) {
+        CreditCard creditCard = new CreditCard();
+        creditCard.setCardNumber(Long.parseLong(generateRandomCardNumber()));
+        creditCard.setCvv(Integer.parseInt(generateRandomCVV()));
+        creditCard.setOwner(customer);
+        creditCard.setCurrentBalance(account.getBalance());
+        creditCard.setExpiryDate(account.getCreationTime().plusYears(10).toLocalDate());
+        creditCard.setAccount(account);
+
+        creditCard.setCardId(creditCardList.size() + 1);
+        this.creditCardList.add(creditCard);
+    }
+
+    /**
+     * Returns a list of credit cards owned by the specified customer.
+     *
+     * @param customer the customer to get credit cards for
+     * @return a list of credit cards owned by the customer
+     */
+    public List<CreditCard> getCreditCardsForCustomer(Customer customer) {
+        return this.creditCardList.stream()
+                .filter(creditCard -> creditCard.getOwner().equals(customer))
+                .collect(Collectors.toList());
     }
 }

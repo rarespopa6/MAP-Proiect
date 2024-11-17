@@ -324,4 +324,46 @@ public class AppController {
         return loanService.getLoansSortedByAmount(borrower);
     }
 
+    /**
+     * Retrieves accounts with balance above a specified amount for a specific user.
+     *
+     * @param userId the ID of the user
+     * @param balance the balance amount
+     * @return a list of accounts with balance above the specified amount
+     */
+    public List<Account> getAccountsWithBalanceAbove(int userId, double balance) {
+        return accountService.getAccountsWithBalanceAboveAmount(userId, balance);
+    }
+
+    /**
+     * Retrieves transactions above a specified amount for a specific checking account.
+     *
+     * @param account the account for which to retrieve transactions
+     * @param amount the amount of money to filter transactions by
+     * @return a list of transactions above the specified amount
+     */
+    public List<Transaction> getTransactionsAboveAmount(CheckingAccount account, double amount) {
+        return accountService.getTransactionsAboveAmount(account, amount);
+    }
+
+
+    /**
+     * Generates a credit card for a specific customer and links it to an account.
+     *
+     * @param customer the customer to generate a credit card for
+     * @param account the account to link the credit card to
+     */
+    public void generateCreditCardForAccount(Customer customer, Account account) {
+        accountService.generateCardForAccount(customer, account);
+    }
+
+    /**
+     * Retrieves all credit cards for a specific customer.
+     *
+     * @param customer the customer to retrieve all credit cards for
+     * @return
+     */
+    public List<CreditCard> getAllCreditCardsForCustomer(Customer customer) {
+        return accountService.getCreditCardsForCustomer(customer);
+    }
 }

@@ -140,8 +140,10 @@ public class UserInterface {
             System.out.println("7. Apply for Co-Ownership");
             System.out.println("8. View Co-Ownership Requests");
             System.out.println("9. Transactions");
-            System.out.println("10. View Account Logs");
-            System.out.println("11. View Sorted Data");
+            System.out.println("10. Credit Cards");
+            System.out.println("11. View Account Logs");
+            System.out.println("12. View Sorted Data");
+            System.out.println("13. View Filtered Data");
             System.out.println("0. Logout");
             System.out.print("Choose an option: ");
 
@@ -186,18 +188,85 @@ public class UserInterface {
                     break;
                 case 10:
                     setSelectedAccount();
+                    creditCardActions();
+                case 11:
+                    setSelectedAccount();
                     if(selectedAccount != null) {
                         viewLogs();
                     }
                     break;
-                case 11:
+                case 12:
                     viewSortedData();
+                    break;
+                case 13:
+                    viewFilteredData();
                     break;
                 default:
                     System.out.println("Invalid option. Please try again.");
                     break;
             }
         }
+    }
+
+    /**
+     * Displays actions available for credit card management and handles user choices.
+     */
+    private void creditCardActions() {
+        while (true) {
+            System.out.println("\n--- Credit Card Actions ---");
+            System.out.println("1. Apply for Credit Card");
+            System.out.println("2. View Credit Cards");
+            System.out.println("0. Back");
+            System.out.print("Choose an option: ");
+
+            int option = scanner.nextInt();
+            scanner.nextLine();
+
+            if (option == 0) {
+                break;
+            }
+
+            switch (option) {
+                case 1:
+                    applyForCreditCard();
+                    break;
+                case 2:
+                    viewCreditCards();
+                    break;
+                default:
+                    System.out.println("Invalid option. Please try again.");
+                    break;
+            }
+        }
+    }
+
+    /**
+     * Displays all credit cards associated with the logged-in customer.
+     */
+    private void viewCreditCards() {
+        List<CreditCard> creditCards = appController.getAllCreditCardsForCustomer((Customer) loggedInUser);
+
+        if (creditCards.isEmpty()) {
+            System.out.println("No credit cards found.");
+        } else {
+            System.out.println("Credit Cards:");
+            for (CreditCard creditCard : creditCards) {
+                System.out.println(creditCard);
+            }
+        }
+    }
+
+    /**
+     * Prompts the customer to apply for a credit card and handles the application process.
+     */
+    private void applyForCreditCard() {
+        try {
+            appController.generateCreditCardForAccount((Customer) loggedInUser, selectedAccount);
+        }catch (RuntimeException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+
+        System.out.println("Credit card application successful.");
     }
 
     /**
@@ -867,8 +936,6 @@ public class UserInterface {
             System.out.println("\n--- Sorted Data ---");
             System.out.println("1. View Accounts Sorted by Balance");
             System.out.println("2. Sort by Creation Date (Newest First)");
-            System.out.println("3. View Transactions Sorted by Date");
-            System.out.println("4. View Loans Sorted by Amount");
             System.out.println("0. Back");
             System.out.print("Choose an option: ");
 
@@ -885,12 +952,6 @@ public class UserInterface {
                     break;
                 case 2:
                     viewAccountsSortedByCreationDate();
-                    break;
-                case 3:
-                    viewTransactionsSortedByDate();
-                    break;
-                case 4:
-                    viewLoansSortedByAmount();
                     break;
 
                 default:
@@ -922,6 +983,9 @@ public class UserInterface {
         }
     }
 
+    /**
+     * Retrieves and displays transactions sorted by date.
+     */
     private void viewTransactionsSortedByDate() {
         List<Transaction> sortedTransactions = appController.getTransactionsSortedByDate((CheckingAccount)selectedAccount);
         System.out.println("\n--- Transactions Sorted by Date ---");
@@ -930,11 +994,74 @@ public class UserInterface {
         }
     }
 
+    /**
+     * Retrieves and displays loans sorted by amount.
+     */
     private void viewLoansSortedByAmount() {
         List<Loan> sortedLoans = appController.getLoansSortedByAmount((Customer)loggedInUser);
         System.out.println("\n--- Loans Sorted by Amount ---");
         for (Loan loan : sortedLoans) {
             System.out.println(loan);
+        }
+    }
+
+    /**
+     * Retrieves and displays accounts with balance above a specified threshold.
+     */
+    private void viewAccountsAboveThreshold() {
+        System.out.print("Enter threshold amount: ");
+        double threshold = scanner.nextDouble();
+        scanner.nextLine();
+
+        List<Account> accounts = appController.getAccountsWithBalanceAbove(loggedInUser.getId(), threshold);
+
+        for (Account account : accounts) {
+            System.out.println(account);
+        }
+    }
+
+    /**
+     * Retrieves and displays transactions above a specified threshold.
+     */
+    private void viewTransactionsAboveThreshold() {
+        setSelectedAccount();
+        System.out.println("Enter threshold amount: ");
+        double threshold = scanner.nextDouble();
+        scanner.nextLine();
+
+        List<Transaction> transactions = appController.getTransactionsAboveAmount((CheckingAccount)selectedAccount, threshold);
+
+        for (Transaction transaction : transactions) {
+            System.out.println(transaction);
+        }
+    }
+
+    private void viewFilteredData() {
+        while (true) {
+            System.out.println("\n--- Filtered Data ---");
+            System.out.println("1. View Accounts with Balance Above Threshold");
+            System.out.println("2. View Transactions Above Threshold");
+            System.out.println("0. Back");
+            System.out.print("Choose an option: ");
+
+            int option = scanner.nextInt();
+            scanner.nextLine();
+
+            if (option == 0) {
+                break;
+            }
+
+            switch (option) {
+                case 1:
+                    viewAccountsAboveThreshold();
+                    break;
+                case 2:
+                    viewTransactionsAboveThreshold();
+                    break;
+                default:
+                    System.out.println("Invalid option. Please try again.");
+                    break;
+            }
         }
     }
 }

@@ -61,6 +61,11 @@ public class LoanService {
         return borrower.getLoanList();
     }
 
+    /**
+     * @param loanId the id of the loan to be retrieved
+     * @param borrower the customer who owns the loan
+     * @return the loan with the specified id, or null if no such loan exists
+     */
     public Loan getLoanById(int loanId, Customer borrower) {
         return getLoans(borrower).stream()
                 .filter(l -> l.getId() == loanId)
@@ -68,6 +73,13 @@ public class LoanService {
                 .orElse(null);
     }
 
+
+    /**
+     * Retrieves all loans associated with a specified customer, sorted by loan amount
+     *
+     * @param borrower the customer whose loans are to be retrieved
+     * @return a list of loans associated with the specified customer, sorted by loan amount
+     */
     public List<Loan> getLoansSortedByAmount(Customer borrower) {
         List<Loan> loans = getLoans(borrower);
         loans.sort((l1, l2) -> Double.compare(l1.getLoanAmount(), l2.getLoanAmount()));
