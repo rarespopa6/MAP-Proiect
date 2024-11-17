@@ -9,10 +9,7 @@ public class Main {
         ui.start();
 
         // TODO List
-        // CreditCard
-        // 1 metoda mai complexa care sa lege 3 entitati
 
-        // v2 File Repo - text cu , intre ele
         // v3 DB Repo
     }
 }

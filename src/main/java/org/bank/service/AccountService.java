@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
  * retrieve accounts for a specific customer, and close accounts.
  */
 public class AccountService {
-    private final FileRepository<Account> accountInMemoryRepository = new FileRepository<>("data/accounts.csv");
+    private final FileRepository<Account> accountRepository = new FileRepository<>("data/accounts.csv");
     private InMemoryRepository<CoOwnershipRequest> coOwnershipRequestRepo = new InMemoryRepository<>();
     private List<CreditCard> creditCardList = new ArrayList<>();
 
@@ -25,7 +25,7 @@ public class AccountService {
      */
     public List<Account> getAccountsForCustomer(int customerId) throws IOException {
 //        accountInMemoryRepository.findAll().forEach(System.out::println);
-        return accountInMemoryRepository.findAll().stream()
+        return accountRepository.findAll().stream()
                 .filter(account -> account.getCustomers().stream().anyMatch(user -> user.getId() == customerId))
                 .collect(Collectors.toList());
     }
@@ -41,7 +41,7 @@ public class AccountService {
     public Account createCheckingAccount(List<User> customers, double initialDeposit) {
         // TODO transaction Fee logic
         Account newAccount = new CheckingAccount(customers, initialDeposit, 0.5);
-        int accountId = accountInMemoryRepository.create(newAccount);
+        int accountId = accountRepository.create(newAccount);
         newAccount.setId(accountId);
 
         for (User customer : customers) {
@@ -67,7 +67,7 @@ public class AccountService {
     public Account createSavingsAccount(List<User> customers, double initialDeposit) {
         // TODO Interest Rate logic
         Account newAccount = new SavingsAccount(customers, initialDeposit, 4.5);
-        int accountId = accountInMemoryRepository.create(newAccount);
+        int accountId = accountRepository.create(newAccount);
         newAccount.setId(accountId);
 
         for (User customer : customers) {
@@ -90,7 +90,7 @@ public class AccountService {
      * @throws RuntimeException if the account is not found or if the customer does not have access to the account
      */
     public void closeAccountForCustomer(int customerId, int accountId) {
-        Account account = accountInMemoryRepository.read(accountId);
+        Account account = accountRepository.read(accountId);
 
         if (account == null) {
             throw new RuntimeException("Account not found.");
@@ -107,7 +107,7 @@ public class AccountService {
         });
 
         try {
-            accountInMemoryRepository.delete(accountId);
+            accountRepository.delete(accountId);
         } catch (Exception e){}
     }
 
@@ -119,7 +119,7 @@ public class AccountService {
      */
     public void addBalance(Account account, double amount) {
         account.setBalance(account.getBalance() + amount);
-        accountInMemoryRepository.update(account);
+        accountRepository.update(account);
     }
 
     /**
@@ -136,7 +136,7 @@ public class AccountService {
         }
 
         account.setBalance(account.getBalance() - amount);
-        accountInMemoryRepository.update(account);
+        accountRepository.update(account);
     }
 
     /**
@@ -146,7 +146,7 @@ public class AccountService {
      * @return the account with the specified ID, or null if not found
      */
     public Account getAccountByid(int id) {
-        return accountInMemoryRepository.read(id);
+        return accountRepository.read(id);
     }
 
     /**
@@ -175,7 +175,7 @@ public class AccountService {
 
         addBalance(account, amount);
         account.getAccountLogs().addDepositLog(amount);
-        accountInMemoryRepository.update(account);
+        accountRepository.update(account);
     }
 
     /**
@@ -208,7 +208,7 @@ public class AccountService {
 
         subtractBalance(account, amount);
         account.getAccountLogs().addWithdrawLog(amount);
-        accountInMemoryRepository.update(account);
+        accountRepository.update(account);
     }
 
     /**
@@ -323,7 +323,7 @@ public class AccountService {
      * @return A list of accounts for the given user ID, sorted in descending order by balance.
      */
     public List<Account> getAccountsSortedByBalance(int userId) {
-        return accountInMemoryRepository.findAll().stream()
+        return accountRepository.findAll().stream()
                 .filter(account -> account.getCustomers().stream().anyMatch(user -> user.getId() == userId))
                 .sorted(Comparator.comparingDouble(Account::getBalance).reversed())
                 .collect(Collectors.toList());
@@ -336,7 +336,7 @@ public class AccountService {
      * @return A list of accounts for the given user ID, sorted in descending order by creation date.
      */
     public List<Account> getAccountsSortedByCreationDate(int userId) {
-        return accountInMemoryRepository.findAll().stream()
+        return accountRepository.findAll().stream()
                 .filter(account -> account.getCustomers().stream().anyMatch(user -> user.getId() == userId))
                 .sorted(Comparator.comparing(Account::getCreationTime).reversed())
                 .collect(Collectors.toList());
@@ -359,7 +359,7 @@ public class AccountService {
      * @return a list of accounts with a balance above the specified amount
      */
     public List<Account> getAccountsWithBalanceAboveAmount(int userId, double amount) {
-        return accountInMemoryRepository.findAll().stream()
+        return accountRepository.findAll().stream()
                 .filter(account -> account.getCustomers().stream().anyMatch(user -> user.getId() == userId))
                 .filter(account -> account.getBalance() > amount)
                 .collect(Collectors.toList());

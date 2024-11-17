@@ -5,7 +5,6 @@ import org.bank.model.Customer;
 import org.bank.model.Employee;
 import org.bank.model.User;
 import org.bank.repository.FileRepository;
-import org.bank.repository.InMemoryRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.io.IOException;
@@ -18,7 +17,7 @@ import java.util.stream.Collectors;
  * This service handles user creation, retrieval, updating, and deletion, as well as account management for customers.
  */
 public class UserService {
-    private final FileRepository<User> userInMemoryRepository = new FileRepository<>("data/users.csv");
+    private final FileRepository<User> userRepository = new FileRepository<>("data/users.csv");
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     /**
@@ -41,7 +40,7 @@ public class UserService {
         String hashedPassword = passwordEncoder.encode(password);
         User employee = new Employee(id, firstName, lastName, email, phoneNumber, hashedPassword, salary, role);
 
-        userInMemoryRepository.create(employee);
+        userRepository.create(employee);
     }
 
     /**
@@ -62,7 +61,7 @@ public class UserService {
         String hashedPassword = passwordEncoder.encode(password);
         User customer = new Customer(firstName, lastName, email, phoneNumber, hashedPassword);
 
-        return userInMemoryRepository.create(customer);
+        return userRepository.create(customer);
     }
 
     /**
@@ -73,7 +72,7 @@ public class UserService {
      * @throws RuntimeException if the user is not found.
      */
     public User readUser(int id) {
-        User user = userInMemoryRepository.read(id);
+        User user = userRepository.read(id);
         if (user == null) {
             throw new RuntimeException("User not found");
         }
@@ -99,7 +98,7 @@ public class UserService {
         String hashedPassword = passwordEncoder.encode(password);
 
         User updatedUser = new Customer(id, firstName, lastName, email, phoneNumber, hashedPassword);
-        userInMemoryRepository.update(updatedUser);
+        userRepository.update(updatedUser);
     }
 
     /**
@@ -113,7 +112,7 @@ public class UserService {
             throw new RuntimeException("User not found for deletion");
         }
         try {
-            userInMemoryRepository.delete(id);
+            userRepository.delete(id);
         } catch (Exception e){throw new RuntimeException("Can not delete user");}
     }
 
@@ -123,7 +122,7 @@ public class UserService {
      * @return a list of all users.
      */
     public List<User> getAllUsers() throws IOException {
-        return userInMemoryRepository.findAll();
+        return userRepository.findAll();
     }
 
     /**
@@ -134,7 +133,7 @@ public class UserService {
      * @throws RuntimeException if the customer is not found or the user is not of type Customer.
      */
     public void addAccountToCustomer(int customerId, Account account) {
-        User user = userInMemoryRepository.read(customerId);
+        User user = userRepository.read(customerId);
 
         if (user instanceof Customer customer) {
             customer.addAccount(account);
@@ -150,7 +149,7 @@ public class UserService {
      * @return the user with the specified email, or {@code null} if not found.
      */
     public User getUserByEmail(String email) throws IOException {
-        return userInMemoryRepository.findAll().stream()
+        return userRepository.findAll().stream()
                 .filter(u -> u.getEmail().equals(email))
                 .findFirst()
                 .orElse(null);
@@ -163,7 +162,7 @@ public class UserService {
      * @return {@code true} if a user with the specified email exists, {@code false} otherwise.
      */
     private boolean userExistsByEmail(String email) throws IOException {
-        return userInMemoryRepository.findAll().stream()
+        return userRepository.findAll().stream()
                 .anyMatch(u -> u.getEmail().equals(email));
     }
 
@@ -174,7 +173,7 @@ public class UserService {
      * @return {@code true} if a user with the specified ID exists, {@code false} otherwise.
      */
     private boolean userExists(int id) {
-        return userInMemoryRepository.read(id) != null;
+        return userRepository.read(id) != null;
     }
 
     /**
@@ -183,7 +182,7 @@ public class UserService {
      * @return A list of users sorted alphabetically by first and last name.
      */
     public List<User> getUsersSortedByName() {
-        return userInMemoryRepository.findAll().stream()
+        return userRepository.findAll().stream()
                 .sorted(Comparator.comparing(User::getFirstName)
                         .thenComparing(User::getLastName))
                 .collect(Collectors.toList());
