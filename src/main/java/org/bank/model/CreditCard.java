@@ -1,6 +1,8 @@
 package org.bank.model;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents a credit card within the banking system.
@@ -18,6 +20,13 @@ public class CreditCard {
     private long cardNumber;
     private LocalDate expiryDate;
     private int cvv;
+
+
+    /**
+     * Default constructor for CreditCard.
+     */
+    public CreditCard() {
+    }
 
     /**
      * Constructs a CreditCard instance with specified details.
