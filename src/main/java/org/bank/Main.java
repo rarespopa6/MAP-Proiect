@@ -10,7 +10,6 @@ public class Main {
 
         // TODO List
         // CreditCard
-        // 2 metode filtrari
         // 1 metoda mai complexa care sa lege 3 entitati
 
         // v2 File Repo - text cu , intre ele

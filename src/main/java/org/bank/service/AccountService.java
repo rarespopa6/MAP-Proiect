@@ -353,4 +353,30 @@ public class AccountService {
     public List<Transaction> getTransactionsForAccount(CheckingAccount account) {
         return account.getTransactionList();
     }
+
+    /**
+     * Retrieves a list of accounts with a balance above the specified amount.
+     *
+     * @param amount the amount to filter accounts by
+     * @return a list of accounts with a balance above the specified amount
+     */
+    public List<Account> getAccountsWithBalanceAboveAmount(int userId, double amount) {
+        return accountInMemoryRepository.findAll().stream()
+                .filter(account -> account.getCustomers().stream().anyMatch(user -> user.getId() == userId))
+                .filter(account -> account.getBalance() > amount)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Retrieves a list of transactions for the specified account that are above the specified amount.
+     *
+     * @param account the account to get transactions for
+     * @param amount the amount to filter transactions by
+     * @return a list of transactions for the specified account that are above the specified amount
+     */
+    public List<Transaction> getTransactionsAboveAmount(CheckingAccount account, double amount) {
+        return account.getTransactionList().stream()
+                .filter(transaction -> transaction.getAmount() > amount)
+                .collect(Collectors.toList());
+    }
 }

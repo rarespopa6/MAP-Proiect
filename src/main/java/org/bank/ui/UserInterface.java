@@ -142,6 +142,7 @@ public class UserInterface {
             System.out.println("9. Transactions");
             System.out.println("10. View Account Logs");
             System.out.println("11. View Sorted Data");
+            System.out.println("12. View Filtered Data");
             System.out.println("0. Logout");
             System.out.print("Choose an option: ");
 
@@ -192,6 +193,9 @@ public class UserInterface {
                     break;
                 case 11:
                     viewSortedData();
+                    break;
+                case 12:
+                    viewFilteredData();
                     break;
                 default:
                     System.out.println("Invalid option. Please try again.");
@@ -922,6 +926,9 @@ public class UserInterface {
         }
     }
 
+    /**
+     * Retrieves and displays transactions sorted by date.
+     */
     private void viewTransactionsSortedByDate() {
         List<Transaction> sortedTransactions = appController.getTransactionsSortedByDate((CheckingAccount)selectedAccount);
         System.out.println("\n--- Transactions Sorted by Date ---");
@@ -930,11 +937,74 @@ public class UserInterface {
         }
     }
 
+    /**
+     * Retrieves and displays loans sorted by amount.
+     */
     private void viewLoansSortedByAmount() {
         List<Loan> sortedLoans = appController.getLoansSortedByAmount((Customer)loggedInUser);
         System.out.println("\n--- Loans Sorted by Amount ---");
         for (Loan loan : sortedLoans) {
             System.out.println(loan);
+        }
+    }
+
+    /**
+     * Retrieves and displays accounts with balance above a specified threshold.
+     */
+    private void viewAccountsAboveThreshold() {
+        System.out.print("Enter threshold amount: ");
+        double threshold = scanner.nextDouble();
+        scanner.nextLine();
+
+        List<Account> accounts = appController.getAccountsWithBalanceAbove(loggedInUser.getId(), threshold);
+
+        for (Account account : accounts) {
+            System.out.println(account);
+        }
+    }
+
+    /**
+     * Retrieves and displays transactions above a specified threshold.
+     */
+    private void viewTransactionsAboveThreshold() {
+        setSelectedAccount();
+        System.out.println("Enter threshold amount: ");
+        double threshold = scanner.nextDouble();
+        scanner.nextLine();
+
+        List<Transaction> transactions = appController.getTransactionsAboveAmount((CheckingAccount)selectedAccount, threshold);
+
+        for (Transaction transaction : transactions) {
+            System.out.println(transaction);
+        }
+    }
+
+    private void viewFilteredData() {
+        while (true) {
+            System.out.println("\n--- Filtered Data ---");
+            System.out.println("1. View Accounts with Balance Above Threshold");
+            System.out.println("2. View Transactions Above Threshold");
+            System.out.println("0. Back");
+            System.out.print("Choose an option: ");
+
+            int option = scanner.nextInt();
+            scanner.nextLine();
+
+            if (option == 0) {
+                break;
+            }
+
+            switch (option) {
+                case 1:
+                    viewAccountsAboveThreshold();
+                    break;
+                case 2:
+                    viewTransactionsAboveThreshold();
+                    break;
+                default:
+                    System.out.println("Invalid option. Please try again.");
+                    break;
+            }
         }
     }
 }
