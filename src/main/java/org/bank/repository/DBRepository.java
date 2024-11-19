@@ -48,7 +48,7 @@ public class DBRepository<T extends Identifiable> implements IRepository<T> {
             return DriverManager.getConnection(dbUrl, dbUser, dbPassword);
         } catch (SQLException e) {
             System.err.println("Failed to connect to database: " + e.getMessage());
-            throw e;  // Rethrow the exception after logging it
+            throw e;
         }
     }
 
@@ -56,22 +56,18 @@ public class DBRepository<T extends Identifiable> implements IRepository<T> {
     public int create(T obj) {
         if (obj == null) throw new IllegalArgumentException("Object to create cannot be null");
 
-        // Obține coloanele și valorile obiectului
         String sql = buildInsertSql(obj);
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
-            // Setează valorile parametrilor pentru insert
             populateInsertStatement(stmt, obj);
             stmt.executeUpdate();
 
-            // Obține ID-ul generat automat
             try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
                     int generatedId = generatedKeys.getInt(1);
                     obj.setId(generatedId);
 
-                    // Dacă este un cont, populează relația cu utilizatorul în tabela account_user
                     if (obj instanceof Account) {
                         Account account = (Account) obj;
                         populateAccountUserRelationship(conn, account);
@@ -96,7 +92,7 @@ public class DBRepository<T extends Identifiable> implements IRepository<T> {
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     T entity = getMapper().map(rs);
-                    populateRelationships(entity, conn); // Populează relațiile (dacă există)
+                    populateRelationships(entity, conn);
                     return entity;
                 }
             }
@@ -114,7 +110,6 @@ public class DBRepository<T extends Identifiable> implements IRepository<T> {
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            // Setează valorile parametrilor pentru update
             populateUpdateStatement(stmt, obj);
             stmt.executeUpdate();
 
@@ -148,7 +143,7 @@ public class DBRepository<T extends Identifiable> implements IRepository<T> {
              ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
                 T entity = getMapper().map(rs);
-                populateRelationships(entity, conn); // Populează relațiile (dacă există)
+                populateRelationships(entity, conn);
                 results.add(entity);
             }
         } catch (SQLException e) {
@@ -168,7 +163,6 @@ public class DBRepository<T extends Identifiable> implements IRepository<T> {
                 try (ResultSet rs = stmt.executeQuery()) {
                     List<User> users = new ArrayList<>();
                     while (rs.next()) {
-                        // Populează utilizatorii. Poți folosi un mapper separat pentru User dacă ai unul.
                         Customer customer = new Customer(
                                 rs.getInt("id"),
                                 rs.getString("first_name"),
@@ -179,7 +173,7 @@ public class DBRepository<T extends Identifiable> implements IRepository<T> {
                         );
                         users.add(customer);
                     }
-                    account.setOwner(users); // Populează relația din entitate
+                    account.setOwner(users);
                 }
             }
         }
@@ -190,7 +184,6 @@ public class DBRepository<T extends Identifiable> implements IRepository<T> {
         StringBuilder sql = new StringBuilder("INSERT INTO ");
         sql.append(tableName).append(" (");
 
-        // Extrage câmpurile din obiect
         List<String> fields = new ArrayList<>();
         if (obj instanceof Account) {
             fields.addAll(Arrays.asList("balance", "creation_time", "type"));
@@ -264,7 +257,6 @@ public class DBRepository<T extends Identifiable> implements IRepository<T> {
         StringBuilder sql = new StringBuilder("UPDATE ");
         sql.append(tableName).append(" SET ");
 
-        // Extrage câmpurile din obiect
         List<String> fields = new ArrayList<>();
         if (obj instanceof Account) {
             fields.addAll(Arrays.asList("balance = ?", "creation_time = ?"));
@@ -313,7 +305,7 @@ public class DBRepository<T extends Identifiable> implements IRepository<T> {
             }
         }
 
-        stmt.setInt(index, obj.getId()); // Setează ID-ul la final
+        stmt.setInt(index, obj.getId());
     }
 
     private void populateAccountUserRelationship(Connection conn, Account account) throws SQLException {
@@ -321,7 +313,7 @@ public class DBRepository<T extends Identifiable> implements IRepository<T> {
         String sqlInsert = "INSERT INTO accountuser (account_id, user_id) VALUES (?, ?)";
 
         try (PreparedStatement checkStmt = conn.prepareStatement(sqlCheck)) {
-            for (User owner : account.getCustomers()) { // Asigură-te că proprietarii sunt setați corect
+            for (User owner : account.getCustomers()) {
                 checkStmt.setInt(1, account.getId());
                 checkStmt.setInt(2, owner.getId());
 
@@ -338,6 +330,4 @@ public class DBRepository<T extends Identifiable> implements IRepository<T> {
             }
         }
     }
-
-
 }
