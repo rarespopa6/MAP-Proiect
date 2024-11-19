@@ -247,6 +247,14 @@ public class DBRepository<T extends Identifiable> implements IRepository<T> {
                 stmt.setInt(index++, employee.getSalary());
                 stmt.setString(index++, employee.getRole());
             }
+        } else if (obj instanceof CoOwnershipRequest) {
+            CoOwnershipRequest request = (CoOwnershipRequest) obj;
+
+            // Inserăm cererea de co-ownership
+            stmt.setInt(index++, request.getAccount().getId()); // account_id
+            stmt.setInt(index++, request.getRequester().getId()); // requester_id
+            stmt.setInt(index++, request.getAccountOwner().getId()); // owner_id
+            stmt.setBoolean(index++, request.isApproved()); // approved (true/false)
         }
     }
 

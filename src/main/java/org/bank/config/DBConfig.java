@@ -10,6 +10,6 @@ public class DBConfig {
     public static final String USERS_TABLE = "Users";
     public static final String ACCOUNTS_TABLE = "Accounts";
     public static final String ACCOUNT_USER_TABLE = "AccountUser";
-    public static final String COOWNERSHIP_TABLE = "Ownership";
+    public static final String COOWNERSHIP_TABLE = "coownership_request";
 }
 

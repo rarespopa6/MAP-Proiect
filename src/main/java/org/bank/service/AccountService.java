@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
  */
 public class AccountService {
     private final DBRepository<Account> accountRepository = new DBRepository<>(Account.class, DBConfig.ACCOUNTS_TABLE);
-    private DBRepository<CoOwnershipRequest> coOwnershipRequestRepo = new DBRepository<>(CoOwnershipRequest.class, DBConfig.COOWNERSHIP_TABLE);
+    private InMemoryRepository<CoOwnershipRequest> coOwnershipRequestRepo = new InMemoryRepository<>();
     private List<CreditCard> creditCardList = new ArrayList<>();
 
     /**
@@ -52,7 +52,7 @@ public class AccountService {
             }
         }
 
-        System.out.println(newAccount);
+//        System.out.println(newAccount);
         //accountInMemoryRepository.writeUserAccountRelation(newAccount);
 
         return newAccount;

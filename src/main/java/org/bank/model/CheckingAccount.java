@@ -64,9 +64,6 @@ public class CheckingAccount extends Account {
      */
     @Override
     public String toString() {
-        return "CheckingAccount{" +
-                super.toString() +
-                " ,transactionFee=" + transactionFee +
-                '}';
+        return String.format("CheckingAccount | %s | transactionFee=%.2f", super.toString(), transactionFee);
     }
 }

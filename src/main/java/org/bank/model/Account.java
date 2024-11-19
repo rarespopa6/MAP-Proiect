@@ -147,11 +147,8 @@ public abstract class Account implements Identifiable {
      */
     @Override
     public String toString() {
-        return "Account{" +
-                "accountId=" + id +
-                ", customers=" + customers.toString() +
-                ", balance=" + balance +
-                ", creationTime=" + creationTime +
-                '}';
+        return String.format("accountId=%d | customers=%s | balance=%.2f | creationTime=%s",
+                id, customers.toString(), balance, creationTime);
     }
+
 }
