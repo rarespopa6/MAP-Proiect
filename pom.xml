@@ -20,6 +20,28 @@
             <artifactId>spring-security-core</artifactId>
             <version>6.3.0</version>
         </dependency>
+        <dependency>
+            <groupId>com.microsoft.sqlserver</groupId>
+            <artifactId>mssql-jdbc</artifactId>
+            <version>11.2.0.jre8</version> <!-- Asigură-te că folosești o versiune compatibilă cu Java 8 sau mai nou -->
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.6.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.32</version> <!-- Verifică ultima versiune disponibilă -->
+        </dependency>
+
+        <!-- Logback (implementare SLF4J) -->
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.2.6</version> <!-- Verifică ultima versiune disponibilă -->
+        </dependency>
     </dependencies>
 
 

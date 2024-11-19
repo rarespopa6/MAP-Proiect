@@ -58,8 +58,8 @@ public class UserInterface {
      * Handles user login, verifies user credentials, and directs to respective actions based on user type.
      */
     private void login() {
-        System.out.print("Are you a Customer (C) or Employee (E)? ");
-        String userType = scanner.nextLine().toUpperCase();
+//        System.out.print("Are you a Customer (C) or Employee (E)? ");
+//        String userType = scanner.nextLine().toUpperCase();
 
         System.out.print("Email: ");
         String email = scanner.nextLine();
@@ -84,9 +84,9 @@ public class UserInterface {
             loggedInUser = user;
             System.out.println("Logged in successfully.");
 
-            if (userType.equals("C")) {
+            if (loggedInUser instanceof Customer) {
                 customerActions();
-            } else if (userType.equals("E")) {
+            } else if (loggedInUser instanceof Employee) {
                 employeeActions();
             } else {
                 System.out.println("Invalid user type.");
