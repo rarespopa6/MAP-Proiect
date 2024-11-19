@@ -366,4 +366,13 @@ public class AppController {
     public List<CreditCard> getAllCreditCardsForCustomer(Customer customer) {
         return accountService.getCreditCardsForCustomer(customer);
     }
+
+    /**
+     * Retrieves a list of all accounts in the system.
+     *
+     * @return a list of Account objects
+     */
+    public List<Account> getAllAccounts() throws IOException {
+        return accountService.getAllAccounts();
+    }
 }

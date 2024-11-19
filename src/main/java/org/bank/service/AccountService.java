@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
  */
 public class AccountService {
     private final DBRepository<Account> accountRepository = new DBRepository<>(Account.class, DBConfig.ACCOUNTS_TABLE);
-    private InMemoryRepository<CoOwnershipRequest> coOwnershipRequestRepo = new InMemoryRepository<>();
+    private final DBRepository<CoOwnershipRequest> coOwnershipRequestRepo = new DBRepository<>(CoOwnershipRequest.class, DBConfig.COOWNERSHIP_TABLE);
     private List<CreditCard> creditCardList = new ArrayList<>();
 
     /**
@@ -440,5 +440,14 @@ public class AccountService {
         return this.creditCardList.stream()
                 .filter(creditCard -> creditCard.getOwner().equals(customer))
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Returns a list of accounts of all users.
+     *
+     * @return a list of accounts
+     */
+    public List<Account> getAllAccounts() {
+        return accountRepository.findAll();
     }
 }

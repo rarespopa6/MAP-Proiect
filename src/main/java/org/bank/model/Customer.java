@@ -137,4 +137,13 @@ public class Customer extends User {
         return "Customer | " + super.toString();
     }
 
+    /**
+     * Constructs a Customer instance with specified id
+     *
+     * @param id         the list of users who own the account
+     */
+    public Customer(int id){
+        super(id);
+    }
+
 }

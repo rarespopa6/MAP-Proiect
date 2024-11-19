@@ -66,4 +66,13 @@ public class CheckingAccount extends Account {
     public String toString() {
         return String.format("CheckingAccount | %s | transactionFee=%.2f", super.toString(), transactionFee);
     }
+
+    /**
+     * Constructs a CheckingAccount instance with specified id
+     *
+     * @param id         the list of users who own the account
+     */
+    public CheckingAccount (int id){
+        super(id);
+    }
 }

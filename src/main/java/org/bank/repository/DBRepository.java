@@ -3,37 +3,68 @@ package org.bank.repository;
 import org.bank.config.DBConfig;
 import org.bank.model.*;
 import org.bank.model.mapper.AccountMapper;
+import org.bank.model.mapper.CoOwnershipRequestMapper;
 import org.bank.model.mapper.Mapper;
 import org.bank.model.mapper.UserMapper;
 
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.*;
 
+/**
+ * The DBRepository class provides a generic implementation of the IRepository interface.
+ * It handles CRUD operations for database entities.
+ *
+ * @param <T> The type of entity being handled (e.g., Account, User, CoOwnershipRequest).
+ */
 public class DBRepository<T extends Identifiable> implements IRepository<T> {
     private final String tableName;
     private final Class<T> type;
     private final Map<Class<?>, Mapper<?>> mappers = new HashMap<>();
     private final String dbUrl = DBConfig.DB_URL;
-    private final String dbUser= DBConfig.DB_USER;
-    private final String dbPassword= DBConfig.DB_PASSWORD;
+    private final String dbUser = DBConfig.DB_USER;
+    private final String dbPassword = DBConfig.DB_PASSWORD;
 
+    /**
+     * Constructs a DBRepository for the specified entity type and table.
+     *
+     * @param type The class type of the entity (e.g., Account.class).
+     * @param tableName The name of the corresponding table in the database.
+     */
     public DBRepository(Class<T> type, String tableName) {
         this.type = type;
         this.tableName = tableName;
 
+        // Account
         registerMapper(Account.class, new AccountMapper());
         registerMapper(CheckingAccount.class, new AccountMapper());
         registerMapper(SavingsAccount.class, new AccountMapper());
 
+        // User
         registerMapper(User.class, new UserMapper());
         registerMapper(Customer.class, new UserMapper());
         registerMapper(Employee.class, new UserMapper());
+
+        // CoOwnershipRequest
+        registerMapper(CoOwnershipRequest.class, new CoOwnershipRequestMapper());
     }
 
+    /**
+     * Registers a mapper for the specified class type.
+     *
+     * @param clazz The class type (e.g., Account.class).
+     * @param mapper The corresponding Mapper instance.
+     */
     public void registerMapper(Class<?> clazz, Mapper<?> mapper) {
         mappers.put(clazz, mapper);
     }
 
+    /**
+     * Retrieves the appropriate mapper for the entity type.
+     *
+     * @return The Mapper for the current entity type.
+     * @throws IllegalArgumentException if no mapper is found for the current entity type.
+     */
     @SuppressWarnings("unchecked")
     private Mapper<T> getMapper() {
         Mapper<?> mapper = mappers.get(type);
@@ -43,6 +74,12 @@ public class DBRepository<T extends Identifiable> implements IRepository<T> {
         return (Mapper<T>) mapper;
     }
 
+    /**
+     * Establishes a connection to the database.
+     *
+     * @return The database connection.
+     * @throws SQLException If the connection attempt fails.
+     */
     private Connection getConnection() throws SQLException {
         try {
             return DriverManager.getConnection(dbUrl, dbUser, dbPassword);
@@ -52,6 +89,13 @@ public class DBRepository<T extends Identifiable> implements IRepository<T> {
         }
     }
 
+    /**
+     * Creates a new entity in the database.
+     *
+     * @param obj The entity to create (e.g., Account, User).
+     * @return The ID of the newly created entity.
+     * @throws IllegalArgumentException If the provided object is null.
+     */
     @Override
     public int create(T obj) {
         if (obj == null) throw new IllegalArgumentException("Object to create cannot be null");
@@ -82,7 +126,12 @@ public class DBRepository<T extends Identifiable> implements IRepository<T> {
         return 0;
     }
 
-
+    /**
+     * Reads an entity from the database by its ID.
+     *
+     * @param id The ID of the entity to read.
+     * @return The entity corresponding to the specified ID, or null if not found.
+     */
     @Override
     public T read(int id) {
         String sql = "SELECT * FROM " + tableName + " WHERE id = ?";
@@ -102,6 +151,12 @@ public class DBRepository<T extends Identifiable> implements IRepository<T> {
         return null;
     }
 
+    /**
+     * Updates an existing entity in the database.
+     *
+     * @param obj The entity to update.
+     * @throws IllegalArgumentException If the provided object is null.
+     */
     @Override
     public void update(T obj) {
         if (obj == null) throw new IllegalArgumentException("Object to update cannot be null");
@@ -115,7 +170,6 @@ public class DBRepository<T extends Identifiable> implements IRepository<T> {
 
             if (obj instanceof Account) {
                 Account account = (Account) obj;
-
                 populateAccountUserRelationship(conn, account);
             }
         } catch (SQLException e) {
@@ -123,6 +177,11 @@ public class DBRepository<T extends Identifiable> implements IRepository<T> {
         }
     }
 
+    /**
+     * Deletes an entity from the database by its ID.
+     *
+     * @param id The ID of the entity to delete.
+     */
     @Override
     public void delete(int id) {
         String sql = "DELETE FROM " + tableName + " WHERE id = ?";
@@ -135,6 +194,11 @@ public class DBRepository<T extends Identifiable> implements IRepository<T> {
         }
     }
 
+    /**
+     * Retrieves all entities from the table.
+     *
+     * @return A list of all entities of the specified type.
+     */
     public List<T> findAll() {
         List<T> results = new ArrayList<>();
         String sql = "SELECT * FROM " + tableName;
@@ -152,6 +216,13 @@ public class DBRepository<T extends Identifiable> implements IRepository<T> {
         return results;
     }
 
+    /**
+     * Populates relationships for the given entity from the database.
+     *
+     * @param entity The entity whose relationships should be populated.
+     * @param conn The database connection.
+     * @throws SQLException If an SQL error occurs.
+     */
     private void populateRelationships(T entity, Connection conn) throws SQLException {
         if (entity instanceof Account) {
             Account account = (Account) entity;
@@ -179,7 +250,12 @@ public class DBRepository<T extends Identifiable> implements IRepository<T> {
         }
     }
 
-
+    /**
+     * Builds the SQL query for inserting an entity into the database.
+     *
+     * @param obj The entity to insert.
+     * @return The SQL query string for inserting the entity.
+     */
     private String buildInsertSql(T obj) {
         StringBuilder sql = new StringBuilder("INSERT INTO ");
         sql.append(tableName).append(" (");
@@ -199,6 +275,8 @@ public class DBRepository<T extends Identifiable> implements IRepository<T> {
             } else if (obj instanceof Employee) {
                 fields.addAll(Arrays.asList("salary", "role"));
             }
+        }  else if (obj instanceof CoOwnershipRequest) {
+            fields.addAll(Arrays.asList("account_id", "requester_id", "owner_id", "approved"));
         }
 
         sql.append(String.join(", ", fields)).append(") VALUES (");
@@ -206,7 +284,13 @@ public class DBRepository<T extends Identifiable> implements IRepository<T> {
         return sql.toString();
     }
 
-
+    /**
+     * Populates the prepared statement with the values of the entity for insertion.
+     *
+     * @param stmt The prepared statement to populate.
+     * @param obj The entity whose data should be inserted.
+     * @throws SQLException If an SQL error occurs.
+     */
     private void populateInsertStatement(PreparedStatement stmt, T obj) throws SQLException {
         int index = 1;
 
@@ -251,8 +335,12 @@ public class DBRepository<T extends Identifiable> implements IRepository<T> {
         }
     }
 
-
-
+    /**
+     * Builds the SQL query for updating an entity in the database.
+     *
+     * @param obj The entity to update.
+     * @return The SQL query string for updating the entity.
+     */
     private String buildUpdateSql(T obj) {
         StringBuilder sql = new StringBuilder("UPDATE ");
         sql.append(tableName).append(" SET ");
@@ -276,13 +364,24 @@ public class DBRepository<T extends Identifiable> implements IRepository<T> {
         return sql.toString();
     }
 
-
+    /**
+     * Populates the prepared statement with the values of the entity for updating.
+     *
+     * @param stmt The prepared statement to populate.
+     * @param obj The entity whose data should be updated.
+     * @throws SQLException If an SQL error occurs.
+     */
     private void populateUpdateStatement(PreparedStatement stmt, T obj) throws SQLException {
         int index = 1;
 
         if (obj instanceof Account) {
             Account account = (Account) obj;
             stmt.setDouble(index++, account.getBalance());
+
+            if (account.getCreationTime() == null) {
+                account.setCreationTime(LocalDateTime.now());
+            }
+
             stmt.setTimestamp(index++, Timestamp.valueOf(account.getCreationTime()));
 
             if (obj instanceof CheckingAccount) {
@@ -308,6 +407,13 @@ public class DBRepository<T extends Identifiable> implements IRepository<T> {
         stmt.setInt(index, obj.getId());
     }
 
+    /**
+     * Populates the relationship between an account and its users (owners).
+     *
+     * @param conn The database connection.
+     * @param account The account whose user relationship should be populated.
+     * @throws SQLException If an SQL error occurs.
+     */
     private void populateAccountUserRelationship(Connection conn, Account account) throws SQLException {
         String sqlCheck = "SELECT COUNT(*) FROM accountuser WHERE account_id = ? AND user_id = ?";
         String sqlInsert = "INSERT INTO accountuser (account_id, user_id) VALUES (?, ?)";

@@ -184,4 +184,8 @@ public abstract class User implements Identifiable {
     public int hashCode() {
         return Objects.hash(id);
     }
+
+    public User(int id){
+        this.id = id;
+    }
 }

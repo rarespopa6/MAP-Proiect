@@ -547,6 +547,9 @@ public class UserInterface {
             System.out.println("3. Update Customer");
             System.out.println("4. Delete User");
             System.out.println("5. List all Users");
+            System.out.println("6. List all Accounts");
+            System.out.println("7. View all Transactions");
+            System.out.println("8. View Account Logs for Account");
             System.out.println("0. Logout");
             System.out.print("Choose an option: ");
 
@@ -575,11 +578,28 @@ public class UserInterface {
                 case 5:
                     listAllUsers();
                     break;
+                case 6:
+                    listAllAccounts();
+                    break;
                 default:
                     System.out.println("Invalid option. Please try again.");
                     break;
             }
         }
+    }
+
+    /**
+     * Lists all Accounts
+     */
+    private void listAllAccounts() {
+        List<Account> accounts = new ArrayList<>();
+        try {
+            accounts = appController.getAllAccounts();
+        } catch (IOException e){
+            System.out.println("Unable to read account list.");
+        }
+
+        accounts.forEach(System.out::println);
     }
 
     /**
@@ -771,7 +791,7 @@ public class UserInterface {
         double loanAmount = scanner.nextDouble();
         scanner.nextLine();
 
-        System.out.print("Enter term in months: (6 min/ 120 max)");
+        System.out.print("Enter term in months: (6 min/ 120 max): ");
         int termMonths = scanner.nextInt();
         scanner.nextLine();
 

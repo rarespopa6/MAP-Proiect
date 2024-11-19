@@ -76,7 +76,7 @@ public abstract class Account implements Identifiable {
 
         if (customer != null && !customers.contains(customer)) {
             customers.add(customer);
-            System.out.println("Customer added to account: " + customer.getId());
+            System.out.println("Customer added to account.");
         } else {
             System.out.println("Customer already exists or invalid customer.");
         }
@@ -149,6 +149,10 @@ public abstract class Account implements Identifiable {
     public String toString() {
         return String.format("accountId=%d | customers=%s | balance=%.2f | creationTime=%s",
                 id, customers.toString(), balance, creationTime);
+    }
+
+    public Account (int id){
+        this.id = id;
     }
 
 }
