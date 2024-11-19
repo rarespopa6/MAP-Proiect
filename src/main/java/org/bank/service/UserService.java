@@ -1,9 +1,11 @@
 package org.bank.service;
 
+import org.bank.config.DBConfig;
 import org.bank.model.Account;
 import org.bank.model.Customer;
 import org.bank.model.Employee;
 import org.bank.model.User;
+import org.bank.repository.DBRepository;
 import org.bank.repository.FileRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
@@ -17,7 +19,7 @@ import java.util.stream.Collectors;
  * This service handles user creation, retrieval, updating, and deletion, as well as account management for customers.
  */
 public class UserService {
-    private final FileRepository<User> userRepository = new FileRepository<>("data/users.csv");
+    private final DBRepository<User> userRepository = new DBRepository<>(User.class, DBConfig.USERS_TABLE);
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     /**
@@ -59,7 +61,7 @@ public class UserService {
             throw new RuntimeException("A customer with this email already exists");
         }
         String hashedPassword = passwordEncoder.encode(password);
-        User customer = new Customer(firstName, lastName, email, phoneNumber, hashedPassword);
+        Customer customer = new Customer(firstName, lastName, email, phoneNumber, hashedPassword);
 
         return userRepository.create(customer);
     }

@@ -1,6 +1,8 @@
 package org.bank.service;
 
+import org.bank.config.DBConfig;
 import org.bank.model.*;
+import org.bank.repository.DBRepository;
 import org.bank.repository.FileRepository;
 import org.bank.repository.InMemoryRepository;
 
@@ -13,7 +15,7 @@ import java.util.stream.Collectors;
  * retrieve accounts for a specific customer, and close accounts.
  */
 public class AccountService {
-    private final FileRepository<Account> accountRepository = new FileRepository<>("data/accounts.csv");
+    private final DBRepository<Account> accountRepository = new DBRepository<>(Account.class, DBConfig.ACCOUNTS_TABLE);
     private InMemoryRepository<CoOwnershipRequest> coOwnershipRequestRepo = new InMemoryRepository<>();
     private List<CreditCard> creditCardList = new ArrayList<>();
 
@@ -24,7 +26,7 @@ public class AccountService {
      * @return a list of accounts that belong to the specified customer
      */
     public List<Account> getAccountsForCustomer(int customerId) throws IOException {
-//        accountInMemoryRepository.findAll().forEach(System.out::println);
+//        accountRepository.findAll().forEach(System.out::println);
         return accountRepository.findAll().stream()
                 .filter(account -> account.getCustomers().stream().anyMatch(user -> user.getId() == customerId))
                 .collect(Collectors.toList());
@@ -50,7 +52,7 @@ public class AccountService {
             }
         }
 
-        System.out.println(newAccount);
+//        System.out.println(newAccount);
         //accountInMemoryRepository.writeUserAccountRelation(newAccount);
 
         return newAccount;
@@ -265,6 +267,7 @@ public class AccountService {
                 }
 
                 account.addCustomer(request.getRequester());
+                accountRepository.update(account);
             } else {
                 throw new RuntimeException("Account is null for request " + requestId);
             }

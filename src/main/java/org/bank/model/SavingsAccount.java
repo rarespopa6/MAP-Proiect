@@ -49,11 +49,8 @@ public class SavingsAccount extends Account {
      */
     @Override
     public String toString() {
-        return "SavingsAccount{" +
-                super.toString() +
-                " ,interestRate=" + interestRate +
-                ", monthlyWithdrawalLimit=" + monthlyWithdrawalLimit +
-                ", withdrawalsThisMonth=" + withdrawalsThisMonth +
-                '}';
+        return String.format("SavingsAccount | %s | interestRate=%.2f | monthlyWithdrawalLimit=%d | withdrawalsThisMonth=%d",
+                super.toString(), interestRate, monthlyWithdrawalLimit, withdrawalsThisMonth);
     }
+
 }

@@ -69,10 +69,8 @@ public class Employee extends User {
      */
     @Override
     public String toString() {
-        return "Employee{" +
-                super.toString() +
-                " ,salary=" + salary +
-                ", role='" + role + '\'' +
-                '}';
+        return String.format("Employee | %s | salary=%d | role='%s'",
+                super.toString(), salary, role);
     }
+
 }

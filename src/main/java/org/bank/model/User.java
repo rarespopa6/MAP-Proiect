@@ -167,14 +167,10 @@ public abstract class User implements Identifiable {
 
     @Override
     public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", email='" + email + '\'' +
-                ", phoneNumber='" + phoneNumber + '\'' +
-                '}';
+        return String.format("id=%d | name=%s %s | email='%s' | phone='%s'",
+                id, firstName, lastName, email, phoneNumber);
     }
+
 
     @Override
     public boolean equals(Object o) {
