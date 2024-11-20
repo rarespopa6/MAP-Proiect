@@ -84,7 +84,6 @@ public class DBRepository<T extends Identifiable> implements IRepository<T> {
         try {
             return DriverManager.getConnection(dbUrl, dbUser, dbPassword);
         } catch (SQLException e) {
-            System.err.println("Failed to connect to database: " + e.getMessage());
             throw e;
         }
     }
@@ -299,7 +298,6 @@ public class DBRepository<T extends Identifiable> implements IRepository<T> {
             stmt.setDouble(index++, account.getBalance());
             stmt.setTimestamp(index++, Timestamp.valueOf(account.getCreationTime()));
 
-            // Setăm tipul contului
             if (obj instanceof CheckingAccount) {
                 stmt.setString(index++, "CHECKING");
                 stmt.setDouble(index++, ((CheckingAccount) account).getTransactionFee());
@@ -315,7 +313,6 @@ public class DBRepository<T extends Identifiable> implements IRepository<T> {
             stmt.setString(index++, user.getPhoneNumber());
             stmt.setString(index++, user.getPassword());
 
-            // Setăm tipul utilizatorului
             if (obj instanceof Customer) {
                 stmt.setString(index++, "CUSTOMER");
             } else if (obj instanceof Employee) {
@@ -327,7 +324,6 @@ public class DBRepository<T extends Identifiable> implements IRepository<T> {
         } else if (obj instanceof CoOwnershipRequest) {
             CoOwnershipRequest request = (CoOwnershipRequest) obj;
 
-            // Inserăm cererea de co-ownership
             stmt.setInt(index++, request.getAccount().getId()); // account_id
             stmt.setInt(index++, request.getRequester().getId()); // requester_id
             stmt.setInt(index++, request.getAccountOwner().getId()); // owner_id
@@ -425,7 +421,6 @@ public class DBRepository<T extends Identifiable> implements IRepository<T> {
 
                 try (ResultSet rs = checkStmt.executeQuery()) {
                     if (rs.next() && rs.getInt(1) == 0) {
-                        // Dacă nu există deja relația, o adăugăm
                         try (PreparedStatement insertStmt = conn.prepareStatement(sqlInsert)) {
                             insertStmt.setInt(1, account.getId());
                             insertStmt.setInt(2, owner.getId());
