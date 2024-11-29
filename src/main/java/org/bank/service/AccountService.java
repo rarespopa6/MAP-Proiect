@@ -2,6 +2,9 @@ package org.bank.service;
 
 import org.bank.config.DBConfig;
 import org.bank.model.*;
+import org.bank.model.exception.BusinessLogicException;
+import org.bank.model.exception.EntityNotFoundException;
+import org.bank.model.exception.ValidationException;
 import org.bank.repository.DBRepository;
 import org.bank.repository.FileRepository;
 import org.bank.repository.InMemoryRepository;
@@ -26,7 +29,6 @@ public class AccountService {
      * @return a list of accounts that belong to the specified customer
      */
     public List<Account> getAccountsForCustomer(int customerId) throws IOException {
-//        accountRepository.findAll().forEach(System.out::println);
         return accountRepository.findAll().stream()
                 .filter(account -> account.getCustomers().stream().anyMatch(user -> user.getId() == customerId))
                 .collect(Collectors.toList());
@@ -41,7 +43,6 @@ public class AccountService {
      * @return the newly created checking account
      */
     public Account createCheckingAccount(List<User> customers, double initialDeposit) {
-        // TODO transaction Fee logic
         Account newAccount = new CheckingAccount(customers, initialDeposit, 0.5);
         int accountId = accountRepository.create(newAccount);
         newAccount.setId(accountId);
@@ -51,9 +52,6 @@ public class AccountService {
                 ((Customer) customer).addAccount(newAccount);
             }
         }
-
-//        System.out.println(newAccount);
-        //accountInMemoryRepository.writeUserAccountRelation(newAccount);
 
         return newAccount;
     }
@@ -67,7 +65,6 @@ public class AccountService {
      * @return the newly created savings account
      */
     public Account createSavingsAccount(List<User> customers, double initialDeposit) {
-        // TODO Interest Rate logic
         Account newAccount = new SavingsAccount(customers, initialDeposit, 4.5);
         int accountId = accountRepository.create(newAccount);
         newAccount.setId(accountId);
@@ -77,8 +74,6 @@ public class AccountService {
                 ((Customer) customer).addAccount(newAccount);
             }
         }
-
-        //accountInMemoryRepository.writeUserAccountRelation(newAccount);
 
         return newAccount;
     }
@@ -95,11 +90,11 @@ public class AccountService {
         Account account = accountRepository.read(accountId);
 
         if (account == null) {
-            throw new RuntimeException("Account not found.");
+            throw new EntityNotFoundException("Account not found.");
         }
 
         if (account.getCustomers().stream().noneMatch(user -> user.getId() == customerId)) {
-            throw new RuntimeException("User does not have access to this account.");
+            throw new BusinessLogicException("User does not have access to this account.");
         }
 
         account.getCustomers().forEach(customer -> {
@@ -134,7 +129,7 @@ public class AccountService {
      */
     public void subtractBalance(Account account, double amount) {
         if (account.getBalance() < amount) {
-            throw new RuntimeException("Insufficient funds");
+            throw new BusinessLogicException("Insufficient funds");
         }
 
         account.setBalance(account.getBalance() - amount);
@@ -165,14 +160,14 @@ public class AccountService {
         Account account = getAccountByid(accountId);
 
         if (account == null) {
-            throw new RuntimeException("Account not found.");
+            throw new EntityNotFoundException("Account not found.");
         }
 
         boolean isOwner = account.getCustomers().stream()
                 .anyMatch(customer -> customer.getId() == userId);
 
         if (!isOwner) {
-            throw new RuntimeException("This account does not belong to the user.");
+            throw new BusinessLogicException("This account does not belong to the user.");
         }
 
         addBalance(account, amount);
@@ -194,18 +189,18 @@ public class AccountService {
         Account account = getAccountByid(accountId);
 
         if (account == null) {
-            throw new RuntimeException("Account not found.");
+            throw new EntityNotFoundException("Account not found.");
         }
 
         boolean isOwner = account.getCustomers().stream()
                 .anyMatch(customer -> customer.getId() == userId);
 
         if (!isOwner) {
-            throw new RuntimeException("This account does not belong to the user.");
+            throw new BusinessLogicException("This account does not belong to the user.");
         }
 
         if (account.getBalance() < amount) {
-            throw new RuntimeException("Insufficient balance for withdrawal.");
+            throw new BusinessLogicException("Insufficient balance for withdrawal.");
         }
 
         subtractBalance(account, amount);
@@ -248,7 +243,6 @@ public class AccountService {
      * @throws RuntimeException if the request is not found, is already approved, or if there are issues with the approval
      */
     public void approveCoOwnershipRequest(int requestId) {
-        System.out.println("Approving Co-Ownership Request with ID: " + requestId);
         CoOwnershipRequest request = coOwnershipRequestRepo.read(requestId);
 
         if (request != null && !request.isApproved()) {
@@ -263,18 +257,18 @@ public class AccountService {
                 }
 
                 if (request.getRequester() == null) {
-                    throw new IllegalStateException("Requester is null");
+                    throw new ValidationException("Requester is null");
                 }
 
                 account.addCustomer(request.getRequester());
                 accountRepository.update(account);
             } else {
-                throw new RuntimeException("Account is null for request " + requestId);
+                throw new ValidationException("Account is null for request " + requestId);
             }
 
             coOwnershipRequestRepo.delete(request.getId());
         } else {
-            throw new RuntimeException("Request not found or already approved.");
+            throw new EntityNotFoundException("Request not found or already approved.");
         }
     }
 

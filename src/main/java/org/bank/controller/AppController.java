@@ -1,6 +1,7 @@
 package org.bank.controller;
 
 import org.bank.model.*;
+import org.bank.model.exception.ValidationException;
 import org.bank.service.AccountService;
 import org.bank.service.LoanService;
 import org.bank.service.UserService;
@@ -38,6 +39,9 @@ public class AppController {
      * @return the User object if found, null otherwise
      */
     public User readUser(int id) {
+        if (id < 0){
+            throw new ValidationException("Invalid user id");
+        }
         return userService.readUser(id);
     }
 
@@ -62,6 +66,9 @@ public class AppController {
      * @param password    the new password for the user account
      */
     public void updateUser(int id, String firstName, String lastName, String email, String phoneNumber, String password) {
+        if (id < 0){
+            throw new ValidationException("Invalid user id");
+        }
         userService.updateUser(id, firstName, lastName, email, phoneNumber, password);
     }
 
@@ -71,6 +78,9 @@ public class AppController {
      * @param id the unique identifier of the user to delete
      */
     public void deleteUser(int id) {
+        if (id < 0){
+            throw new ValidationException("Invalid user id");
+        }
         userService.deleteUser(id);
     }
 
@@ -90,6 +100,9 @@ public class AppController {
      * @return a list of Account objects associated with the customer
      */
     public List<Account> getAccountsForCustomer(int customerId) throws IOException {
+        if (customerId < 0){
+            throw new ValidationException("Invalid user id");
+        }
         return accountService.getAccountsForCustomer(customerId);
     }
 
@@ -101,6 +114,12 @@ public class AppController {
      * @return the newly created CheckingAccount object
      */
     public Account createCheckingAccount(int customerId, double initialDeposit) {
+        if (customerId < 0){
+            throw new ValidationException("Invalid user id.");
+        }
+        if (initialDeposit <= 0){
+            throw new ValidationException("Invalid initial deposit.");
+        }
         return accountService.createCheckingAccount(List.of(readUser(customerId)), initialDeposit);
     }
 
@@ -112,6 +131,12 @@ public class AppController {
      * @return the newly created SavingsAccount object
      */
     public Account createSavingsAccount(int customerId, double initialDeposit) {
+        if (customerId < 0){
+            throw new ValidationException("Invalid user id.");
+        }
+        if (initialDeposit <= 0){
+            throw new ValidationException("Invalid initial deposit.");
+        }
         return accountService.createSavingsAccount(List.of(readUser(customerId)), initialDeposit);
     }
 
@@ -122,6 +147,12 @@ public class AppController {
      * @param accountId  the unique identifier of the account to close
      */
     public void closeAccount(int customerId, int accountId) {
+        if (customerId < 0){
+            throw new ValidationException("Invalid user id.");
+        }
+        if (accountId < 0){
+            throw new ValidationException("Invalid account id.");
+        }
         accountService.closeAccountForCustomer(customerId, accountId);
     }
 
@@ -134,6 +165,9 @@ public class AppController {
      * @param termMonths the term of the loan in months
      */
     public void getLoan(Customer borrower, Account account, double amount, int termMonths) {
+        if (amount <= 0){
+            throw new ValidationException("Invalid amount.");
+        }
         this.loanService.getNewLoan(borrower, amount, termMonths);
         this.accountService.addBalance(account, amount);
     }
@@ -161,7 +195,8 @@ public class AppController {
                 throw e;
             }
         } else {
-            System.out.println("Loan not found.");
+//            System.out.println("Loan not found.");
+            throw new ValidationException("Invalid loan id");
         }
     }
 
@@ -184,6 +219,9 @@ public class AppController {
      * @throws RuntimeException if the loan cannot be found or other errors occur
      */
     public Loan getLoanById(int loanId, Customer borrower) {
+        if (loanId < 0){
+            throw new ValidationException("Invalid loan id");
+        }
         return this.loanService.getLoanById(loanId, borrower);
     }
 
@@ -196,6 +234,15 @@ public class AppController {
      * @throws RuntimeException if the account or user is invalid or if other errors occur
      */
     public void depositToAccount(int accountId, int userId, double amount) {
+        if (accountId < 0){
+            throw new ValidationException("Invalid account id");
+        }
+        if (userId < 0){
+            throw new ValidationException("Invalid user id");
+        }
+        if (amount <= 0){
+            throw new ValidationException("Invalid amount.");
+        }
         accountService.depositToAccount(accountId, userId, amount);
     }
 
@@ -208,6 +255,15 @@ public class AppController {
      * @throws RuntimeException if the account or user is invalid, or if there are insufficient funds in the account
      */
     public void withdrawFromAccount(int accountId, int userId, double amount) {
+        if (accountId < 0){
+            throw new ValidationException("Invalid account id");
+        }
+        if (userId < 0){
+            throw new ValidationException("Invalid user id");
+        }
+        if (amount <= 0){
+            throw new ValidationException("Invalid amount.");
+        }
         accountService.withdrawFromAccount(accountId, userId, amount);
     }
 
@@ -226,7 +282,7 @@ public class AppController {
         Customer accountOwner = (Customer) readUser(accountOwnerEmail);
 
         if (account == null || requester == null || accountOwner == null) {
-            throw new RuntimeException("Invalid account or user details.");
+            throw new ValidationException("Invalid account or user details.");
         }
 
         return accountService.createCoOwnershipRequest(account, requester, accountOwner);
@@ -239,6 +295,9 @@ public class AppController {
      * @return a list of co-ownership requests that are pending for the specified account owner
      */
     public List<CoOwnershipRequest> viewPendingRequests(int accountOwnerId) {
+        if (accountOwnerId < 0){
+            throw new ValidationException("Invalid account owner");
+        }
         return accountService.getRequestsForCustomer(accountOwnerId);
     }
 
@@ -249,6 +308,9 @@ public class AppController {
      * @throws RuntimeException if the request cannot be found or other errors occur
      */
     public void approveCoOwnership(int requestId) {
+        if (requestId < 0){
+            throw new ValidationException("Invalid request id");
+        }
         accountService.approveCoOwnershipRequest(requestId);
     }
 
@@ -291,6 +353,9 @@ public class AppController {
      * @return A list of accounts sorted by balance.
      */
     public List<Account> getAccountsSortedByBalance(int userId) {
+        if (userId < 0){
+            throw new ValidationException("Invalid user id");
+        }
         return accountService.getAccountsSortedByBalance(userId);
     }
 
@@ -301,6 +366,9 @@ public class AppController {
      * @return A list of accounts sorted by creation date.
      */
     public List<Account> getAccountsSortedByCreationDate(int userId) {
+        if (userId < 0){
+            throw new ValidationException("Invalid user id");
+        }
         return accountService.getAccountsSortedByCreationDate(userId);
     }
 
@@ -332,6 +400,12 @@ public class AppController {
      * @return a list of accounts with balance above the specified amount
      */
     public List<Account> getAccountsWithBalanceAbove(int userId, double balance) {
+        if (userId < 0){
+            throw new ValidationException("Invalid user id");
+        }
+        if (balance < 0){
+            throw new ValidationException("Invalid balance");
+        }
         return accountService.getAccountsWithBalanceAboveAmount(userId, balance);
     }
 
@@ -343,6 +417,9 @@ public class AppController {
      * @return a list of transactions above the specified amount
      */
     public List<Transaction> getTransactionsAboveAmount(CheckingAccount account, double amount) {
+        if (amount < 0){
+            throw new ValidationException("Invalid amount");
+        }
         return accountService.getTransactionsAboveAmount(account, amount);
     }
 
@@ -361,7 +438,7 @@ public class AppController {
      * Retrieves all credit cards for a specific customer.
      *
      * @param customer the customer to retrieve all credit cards for
-     * @return
+     * @return a list of Credit Cards
      */
     public List<CreditCard> getAllCreditCardsForCustomer(Customer customer) {
         return accountService.getCreditCardsForCustomer(customer);

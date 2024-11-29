@@ -2,6 +2,8 @@ package org.bank.repository;
 
 import org.bank.config.DBConfig;
 import org.bank.model.*;
+import org.bank.model.exception.DatabaseException;
+import org.bank.model.exception.EntityNotFoundException;
 import org.bank.model.mapper.AccountMapper;
 import org.bank.model.mapper.CoOwnershipRequestMapper;
 import org.bank.model.mapper.Mapper;
@@ -80,11 +82,11 @@ public class DBRepository<T extends Identifiable> implements IRepository<T> {
      * @return The database connection.
      * @throws SQLException If the connection attempt fails.
      */
-    private Connection getConnection() throws SQLException {
+    private Connection getConnection() throws DatabaseException {
         try {
             return DriverManager.getConnection(dbUrl, dbUser, dbPassword);
         } catch (SQLException e) {
-            throw e;
+            throw new DatabaseException("Can not connect to database.");
         }
     }
 
@@ -97,7 +99,7 @@ public class DBRepository<T extends Identifiable> implements IRepository<T> {
      */
     @Override
     public int create(T obj) {
-        if (obj == null) throw new IllegalArgumentException("Object to create cannot be null");
+        if (obj == null) throw new EntityNotFoundException("Object to create cannot be null");
 
         String sql = buildInsertSql(obj);
         try (Connection conn = getConnection();
@@ -120,7 +122,7 @@ public class DBRepository<T extends Identifiable> implements IRepository<T> {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new DatabaseException("Error creating new entity.");
         }
         return 0;
     }
@@ -145,7 +147,7 @@ public class DBRepository<T extends Identifiable> implements IRepository<T> {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new EntityNotFoundException("Can not read entity.");
         }
         return null;
     }
@@ -172,7 +174,7 @@ public class DBRepository<T extends Identifiable> implements IRepository<T> {
                 populateAccountUserRelationship(conn, account);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new EntityNotFoundException("Can not update entity.");
         }
     }
 
@@ -189,7 +191,7 @@ public class DBRepository<T extends Identifiable> implements IRepository<T> {
             stmt.setInt(1, id);
             stmt.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new EntityNotFoundException("Can not delete entity.");
         }
     }
 
@@ -210,7 +212,7 @@ public class DBRepository<T extends Identifiable> implements IRepository<T> {
                 results.add(entity);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new EntityNotFoundException("Can not find all entities.");
         }
         return results;
     }

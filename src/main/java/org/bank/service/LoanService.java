@@ -2,6 +2,7 @@ package org.bank.service;
 
 import org.bank.model.Customer;
 import org.bank.model.Loan;
+import org.bank.model.exception.ValidationException;
 
 import java.util.List;
 
@@ -20,6 +21,9 @@ public class LoanService {
      * @param termMonths the term of the loan in months
      */
     public void getNewLoan(Customer borrower, double loanAmount, int termMonths) {
+        if (termMonths < 6 || termMonths > 120) {
+            throw new ValidationException("Invalid term Months (6-120).");
+        }
         Loan loan = new Loan(borrower, loanAmount, termMonths);
         List<Loan> loans = borrower.getLoanList();
         loan.setId(loans.size() + 1);

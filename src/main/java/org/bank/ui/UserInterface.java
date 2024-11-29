@@ -58,9 +58,6 @@ public class UserInterface {
      * Handles user login, verifies user credentials, and directs to respective actions based on user type.
      */
     private void login() {
-//        System.out.print("Are you a Customer (C) or Employee (E)? ");
-//        String userType = scanner.nextLine().toUpperCase();
-
         System.out.print("Email: ");
         String email = scanner.nextLine();
 
@@ -498,16 +495,25 @@ public class UserInterface {
                 double initialDeposit = scanner.nextDouble();
                 scanner.nextLine();
 
-                newAccount = appController.createCheckingAccount(customer.getId(), initialDeposit);
+                try {
+                    newAccount = appController.createCheckingAccount(customer.getId(), initialDeposit);
+                    System.out.println("New account opened: " + newAccount);
+                } catch (RuntimeException e) {
+                    System.out.println(e.getMessage());
+                }
             } else if (option == 2) {
                 System.out.println("New Savings Account");
                 System.out.print("Enter initial deposit: ");
                 double initialDeposit = scanner.nextDouble();
                 scanner.nextLine();
 
-                newAccount = appController.createSavingsAccount(customer.getId(), initialDeposit);
+                try {
+                    newAccount = appController.createSavingsAccount(customer.getId(), initialDeposit);
+                    System.out.println("New account opened: " + newAccount);
+                } catch (RuntimeException e) {
+                    System.out.println(e.getMessage());
+                }
             }
-            System.out.println("New account opened: " + newAccount);
         } else {
             System.out.println("No customer is logged in.");
         }
@@ -625,7 +631,7 @@ public class UserInterface {
             int generatedId = appController.createCustomer(firstName, lastName, email, phoneNumber, password);
             System.out.println("Customer created with ID: " + generatedId);
         } catch (RuntimeException | IOException e) {
-            System.out.println("Customer with that email already exists.");
+            System.out.println(e.getMessage());
         }
     }
 
@@ -644,8 +650,8 @@ public class UserInterface {
             } else {
                 System.out.println("User not found.");
             }
-        } catch (Exception e) {
-            System.out.println("User not found.");
+        } catch (RuntimeException e) {
+            System.out.println(e.getMessage());
         }
     }
 
@@ -675,7 +681,7 @@ public class UserInterface {
             appController.updateUser(userId, userFirstName, userLastName, userEmail, userPhone, password);
             System.out.println("User updated successfully.");
         } catch (RuntimeException e) {
-            System.out.println("Error: User not found");
+            System.out.println(e.getMessage());
         }
     }
 
@@ -691,7 +697,7 @@ public class UserInterface {
             appController.deleteUser(deleteId);
             System.out.println("User deleted successfully.");
         } catch (RuntimeException e) {
-            System.out.println("Error: User not found");
+            System.out.println(e.getMessage());
         }
     }
 
@@ -795,12 +801,12 @@ public class UserInterface {
         int termMonths = scanner.nextInt();
         scanner.nextLine();
 
-        if (termMonths < 6 || termMonths > 120) {
-            System.out.println("Invalid term months. Please try again.");
+        try {
+            this.appController.getLoan((Customer) loggedInUser, selectedAccount, loanAmount, termMonths);
+            System.out.println("Loan taken successfully!");
+        } catch (RuntimeException e){
+            System.out.println(e.getMessage());
         }
-
-        this.appController.getLoan((Customer) loggedInUser, selectedAccount, loanAmount, termMonths);
-        System.out.println("Loan taken successfully!");
     }
 
     /**
@@ -826,10 +832,13 @@ public class UserInterface {
         int loanId = scanner.nextInt();
         scanner.nextLine();
 
-        // Obținem informații despre creditul cu ID-ul specificat
-        Loan loan = this.appController.getLoanById(loanId, (Customer) loggedInUser);
+        Loan loan = null;
+        try {
+            loan = this.appController.getLoanById(loanId, (Customer) loggedInUser);
+        } catch (RuntimeException e) {
+            System.out.println(e.getMessage());
+        }
 
-        // Verificăm dacă creditul există și afișăm informațiile
         if (loan != null) {
             System.out.println("Loan Information:");
             System.out.println(" - Remaining amount: " + loan.getLoanAmount());
@@ -943,7 +952,7 @@ public class UserInterface {
             for(String log : this.appController.getLogsForAccount((CheckingAccount) selectedAccount)) {
                 System.out.println(++index + ". " + log);
             }
-        }catch (RuntimeException e) {
+        } catch (RuntimeException e) {
             System.out.println("Error: No logs available");
         }
     }
@@ -985,10 +994,14 @@ public class UserInterface {
      * Retrieves and displays accounts sorted by balance.
      */
     private void viewAccountsSortedByBalance() {
-        List<Account> sortedAccounts = appController.getAccountsSortedByBalance(loggedInUser.getId());
-        System.out.println("\n--- Accounts Sorted by Balance ---");
-        for (Account account : sortedAccounts) {
-            System.out.println(account);
+        try {
+            List<Account> sortedAccounts = appController.getAccountsSortedByBalance(loggedInUser.getId());
+            System.out.println("\n--- Accounts Sorted by Balance ---");
+            for (Account account : sortedAccounts) {
+                System.out.println(account);
+            }
+        } catch (RuntimeException e){
+            System.out.println(e.getMessage());
         }
     }
 
@@ -1033,10 +1046,14 @@ public class UserInterface {
         double threshold = scanner.nextDouble();
         scanner.nextLine();
 
-        List<Account> accounts = appController.getAccountsWithBalanceAbove(loggedInUser.getId(), threshold);
+        try {
+            List<Account> accounts = appController.getAccountsWithBalanceAbove(loggedInUser.getId(), threshold);
 
-        for (Account account : accounts) {
-            System.out.println(account);
+            for (Account account : accounts) {
+                System.out.println(account);
+            }
+        } catch (RuntimeException e){
+            System.out.println(e.getMessage());
         }
     }
 
@@ -1049,10 +1066,14 @@ public class UserInterface {
         double threshold = scanner.nextDouble();
         scanner.nextLine();
 
-        List<Transaction> transactions = appController.getTransactionsAboveAmount((CheckingAccount)selectedAccount, threshold);
+        try {
+            List<Transaction> transactions = appController.getTransactionsAboveAmount((CheckingAccount) selectedAccount, threshold);
 
-        for (Transaction transaction : transactions) {
-            System.out.println(transaction);
+            for (Transaction transaction : transactions) {
+                System.out.println(transaction);
+            }
+        } catch (RuntimeException e){
+            System.out.println(e.getMessage());
         }
     }
 

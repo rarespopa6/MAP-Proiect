@@ -5,6 +5,9 @@ import org.bank.model.Account;
 import org.bank.model.Customer;
 import org.bank.model.Employee;
 import org.bank.model.User;
+import org.bank.model.exception.BusinessLogicException;
+import org.bank.model.exception.DatabaseException;
+import org.bank.model.exception.EntityNotFoundException;
 import org.bank.repository.DBRepository;
 import org.bank.repository.FileRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -37,7 +40,7 @@ public class UserService {
      */
     public void createEmployee(int id, String firstName, String lastName, String email, String phoneNumber, String password, int salary, String role) throws IOException {
         if (userExistsByEmail(email)) {
-            throw new RuntimeException("An employee with this email already exists");
+            throw new BusinessLogicException("An employee with this email already exists");
         }
         String hashedPassword = passwordEncoder.encode(password);
         User employee = new Employee(id, firstName, lastName, email, phoneNumber, hashedPassword, salary, role);
@@ -58,7 +61,7 @@ public class UserService {
      */
     public int createCustomer(String firstName, String lastName, String email, String phoneNumber, String password) throws IOException {
         if (userExistsByEmail(email)) {
-            throw new RuntimeException("A customer with this email already exists");
+            throw new BusinessLogicException("A customer with this email already exists");
         }
         String hashedPassword = passwordEncoder.encode(password);
         Customer customer = new Customer(firstName, lastName, email, phoneNumber, hashedPassword);
@@ -76,7 +79,7 @@ public class UserService {
     public User readUser(int id) {
         User user = userRepository.read(id);
         if (user == null) {
-            throw new RuntimeException("User not found");
+            throw new EntityNotFoundException("User not found");
         }
         return user;
     }
@@ -94,7 +97,7 @@ public class UserService {
      */
     public void updateUser(int id, String firstName, String lastName, String email, String phoneNumber, String password) {
         if (!userExists(id)) {
-            throw new RuntimeException("User not found for update");
+            throw new EntityNotFoundException("User not found for update");
         }
 
         String hashedPassword = passwordEncoder.encode(password);
@@ -111,11 +114,11 @@ public class UserService {
      */
     public void deleteUser(int id) {
         if (!userExists(id)) {
-            throw new RuntimeException("User not found for deletion");
+            throw new EntityNotFoundException("User not found for deletion");
         }
         try {
             userRepository.delete(id);
-        } catch (Exception e){throw new RuntimeException("Can not delete user");}
+        } catch (Exception e){throw new DatabaseException("Can not delete user");}
     }
 
     /**
@@ -140,7 +143,7 @@ public class UserService {
         if (user instanceof Customer customer) {
             customer.addAccount(account);
         } else {
-            throw new RuntimeException("Customer not found or not a valid customer type.");
+            throw new EntityNotFoundException("Customer not found or not a valid customer type.");
         }
     }
 
