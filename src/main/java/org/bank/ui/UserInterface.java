@@ -305,6 +305,8 @@ public class UserInterface {
             }
 
             while (true) {
+                selectedAccount = appController.getAccountById(accountId);
+
                 System.out.println("\n--- Manage Account Funds ---");
                 System.out.println("1. View Balance");
                 System.out.println("2. Deposit");

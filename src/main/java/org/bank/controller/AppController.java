@@ -226,6 +226,20 @@ public class AppController {
     }
 
     /**
+     * Retrieves a loan by its ID for a specific borrower.
+     *
+     * @param accountId the ID of the account
+     * @return the account
+     * @throws RuntimeException if the account cannot be found or other errors occur
+     */
+    public Account getAccountById(int accountId) {
+        if (accountId < 0){
+            throw new ValidationException("Invalid account id");
+        }
+        return this.accountService.getAccountByid(accountId);
+    }
+
+    /**
      * Deposits a specified amount of money into a user's account.
      *
      * @param accountId the ID of the account to deposit into

@@ -71,7 +71,7 @@ public class DBRepository<T extends Identifiable> implements IRepository<T> {
     private Mapper<T> getMapper() {
         Mapper<?> mapper = mappers.get(type);
         if (mapper == null) {
-            throw new IllegalArgumentException("No mapper found for type: " + type.getName());
+            throw new DatabaseException("No mapper found for type: " + type.getName());
         }
         return (Mapper<T>) mapper;
     }
