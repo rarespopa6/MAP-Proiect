@@ -29,6 +29,9 @@ public class AppController {
      * @return the unique identifier of the newly created customer
      */
     public int createCustomer(String firstName, String lastName, String email, String phoneNumber, String password) throws IOException {
+        if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || phoneNumber.isEmpty() || password.isEmpty()) {
+            throw new ValidationException("Invalid user details.");
+        }
         return userService.createCustomer(firstName, lastName, email, phoneNumber, password);
     }
 
@@ -52,6 +55,9 @@ public class AppController {
      * @return the User object if found, null otherwise
      */
     public User readUser(String email) throws IOException {
+        if (email.isEmpty()){
+            throw new ValidationException("Invalid user email");
+        }
         return userService.getUserByEmail(email);
     }
 
@@ -68,6 +74,9 @@ public class AppController {
     public void updateUser(int id, String firstName, String lastName, String email, String phoneNumber, String password) {
         if (id < 0){
             throw new ValidationException("Invalid user id");
+        }
+        if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || phoneNumber.isEmpty() || password.isEmpty()) {
+            throw new ValidationException("Invalid user details.");
         }
         userService.updateUser(id, firstName, lastName, email, phoneNumber, password);
     }

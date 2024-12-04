@@ -558,6 +558,7 @@ public class UserInterface {
             System.out.println("6. List all Accounts");
             System.out.println("7. View all Transactions");
             System.out.println("8. View Account Logs for Account");
+            System.out.println("9. View Bank Info");
             System.out.println("0. Logout");
             System.out.print("Choose an option: ");
 
@@ -588,7 +589,7 @@ public class UserInterface {
                     break;
                 case 6:
                     listAllAccounts();
-                    break;
+                    break; // TODO case 7, 8, 9
                 default:
                     System.out.println("Invalid option. Please try again.");
                     break;
