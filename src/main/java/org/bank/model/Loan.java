@@ -5,7 +5,7 @@ package org.bank.model;
  * Represents a loan that a customer can take out from the bank.
  * Requires a borrower, loan amount, interest rate, and term in months.
  */
-public class Loan {
+public class Loan implements Identifiable {
     private int id;
     private Customer borrower;
     private double loanAmount;
@@ -113,7 +113,7 @@ public class Loan {
     public String toString() {
         return "Loan{" +
                 "id=" + id +
-                ", borrower=" + borrower +
+                ", borrower=" + borrower.getId() +
                 ", loanAmount=" + loanAmount +
                 ", termMonths=" + termMonths +
                 '}';

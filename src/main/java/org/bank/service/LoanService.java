@@ -1,15 +1,20 @@
 package org.bank.service;
 
+import org.bank.config.DBConfig;
 import org.bank.model.Customer;
 import org.bank.model.Loan;
 import org.bank.model.exception.ValidationException;
+import org.bank.repository.DBRepository;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Service class that manages loans by providing functionality to create new loans, pay off loans, and retrieve loans
  */
 public class LoanService {
+    private final DBRepository<Loan> loanRepository = new DBRepository<>(Loan.class, DBConfig.LOANS_TABLE);
+
     public LoanService() {
     }
 
@@ -25,8 +30,8 @@ public class LoanService {
             throw new ValidationException("Invalid term Months (6-120).");
         }
         Loan loan = new Loan(borrower, loanAmount, termMonths);
-        List<Loan> loans = borrower.getLoanList();
-        loan.setId(loans.size() + 1);
+        int id = loanRepository.create(loan);
+        loan.setId(id);
         borrower.addLoan(loan);
     }
 
@@ -43,9 +48,11 @@ public class LoanService {
 
         double remainingAmount = loan.getLoanAmount() - paymentToBeProcessed;
         loan.setLoanAmount(remainingAmount);
+        loanRepository.update(loan);
 
         if (remainingAmount <= 0) {
             borrower.removeLoan(loan);
+            loanRepository.delete(loan.getId());
             System.out.println("Loan fully paid off!");
         } else {
             System.out.println("Payed successfully " + paymentToBeProcessed + ". Remaining: " + remainingAmount);
@@ -62,6 +69,9 @@ public class LoanService {
      * @return a list of loans associated with the specified customer
      */
     public List<Loan> getLoans(Customer borrower) {
+        borrower.setLoanList(loanRepository.findAll().stream()
+                .filter(loan -> loan.getBorrower().getId() == borrower.getId())
+                .collect(Collectors.toList()));
         return borrower.getLoanList();
     }
 
