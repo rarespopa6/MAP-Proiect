@@ -1065,7 +1065,7 @@ public class UserInterface {
      */
     private void viewTransactionsAboveThreshold() {
         setSelectedAccount();
-        System.out.println("Enter threshold amount: ");
+        System.out.print("Enter threshold amount: ");
         double threshold = scanner.nextDouble();
         scanner.nextLine();
 
