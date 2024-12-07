@@ -1,6 +1,5 @@
 package org.bank.model.mapper;
 
-import org.bank.model.Account;
 import org.bank.model.CheckingAccount;
 import org.bank.model.CoOwnershipRequest;
 import org.bank.model.Customer;

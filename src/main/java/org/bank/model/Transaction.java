@@ -5,7 +5,7 @@ import java.util.Date;
 /**
  * Represents a transaction between two accounts in the banking system.
  */
-public class Transaction {
+public class Transaction implements Identifiable {
     private int id;
     private Account sourceAccount;
     private Account destinationAccount;
@@ -102,8 +102,8 @@ public class Transaction {
     public String toString() {
         return "Transaction{" +
                 "id=" + id +
-                ", sourceAccount=" + sourceAccount +
-                ", destinationAccount=" + destinationAccount +
+                ", sourceAccount=" + sourceAccount.getId() +
+                ", destinationAccount=" + destinationAccount.getId() +
                 ", amount=" + amount +
                 ", date=" + date +
                 '}';

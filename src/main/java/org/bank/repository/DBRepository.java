@@ -8,6 +8,8 @@ import org.bank.model.mapper.AccountMapper;
 import org.bank.model.mapper.CoOwnershipRequestMapper;
 import org.bank.model.mapper.Mapper;
 import org.bank.model.mapper.UserMapper;
+import org.bank.model.mapper.TransactionMapper;
+import org.bank.model.mapper.LoanMapper;
 
 import java.sql.*;
 import java.time.LocalDateTime;
@@ -26,7 +28,6 @@ public class DBRepository<T extends Identifiable> implements IRepository<T> {
     private final String dbUrl = DBConfig.DB_URL;
     private final String dbUser = DBConfig.DB_USER;
     private final String dbPassword = DBConfig.DB_PASSWORD;
-
     /**
      * Constructs a DBRepository for the specified entity type and table.
      *
@@ -49,6 +50,12 @@ public class DBRepository<T extends Identifiable> implements IRepository<T> {
 
         // CoOwnershipRequest
         registerMapper(CoOwnershipRequest.class, new CoOwnershipRequestMapper());
+
+        // Transaction
+        registerMapper(Transaction.class, new TransactionMapper());
+
+        // Loan
+        registerMapper(Loan.class, new LoanMapper());
     }
 
     /**
@@ -70,9 +77,11 @@ public class DBRepository<T extends Identifiable> implements IRepository<T> {
     @SuppressWarnings("unchecked")
     private Mapper<T> getMapper() {
         Mapper<?> mapper = mappers.get(type);
+
         if (mapper == null) {
             throw new DatabaseException("No mapper found for type: " + type.getName());
         }
+
         return (Mapper<T>) mapper;
     }
 
@@ -203,6 +212,7 @@ public class DBRepository<T extends Identifiable> implements IRepository<T> {
     public List<T> findAll() {
         List<T> results = new ArrayList<>();
         String sql = "SELECT * FROM " + tableName;
+
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
@@ -214,6 +224,7 @@ public class DBRepository<T extends Identifiable> implements IRepository<T> {
         } catch (SQLException e) {
             throw new EntityNotFoundException("Can not find all entities.");
         }
+
         return results;
     }
 
@@ -278,6 +289,10 @@ public class DBRepository<T extends Identifiable> implements IRepository<T> {
             }
         }  else if (obj instanceof CoOwnershipRequest) {
             fields.addAll(Arrays.asList("account_id", "requester_id", "owner_id", "approved"));
+        } else if (obj instanceof Transaction) {
+            fields.addAll(Arrays.asList("source_account_id", "destination_account_id", "amount", "transaction_date"));
+        } else if (obj instanceof Loan) {
+            fields.addAll(Arrays.asList("borrower_id", "loan_amount", "term_months"));
         }
 
         sql.append(String.join(", ", fields)).append(") VALUES (");
@@ -302,10 +317,10 @@ public class DBRepository<T extends Identifiable> implements IRepository<T> {
 
             if (obj instanceof CheckingAccount) {
                 stmt.setString(index++, "CHECKING");
-                stmt.setDouble(index++, ((CheckingAccount) account).getTransactionFee());
+                stmt.setDouble(index, ((CheckingAccount) account).getTransactionFee());
             } else if (obj instanceof SavingsAccount) {
                 stmt.setString(index++, "SAVINGS");
-                stmt.setDouble(index++, ((SavingsAccount) account).getInterestRate());
+                stmt.setDouble(index, ((SavingsAccount) account).getInterestRate());
             }
         } else if (obj instanceof User) {
             User user = (User) obj;
@@ -316,12 +331,12 @@ public class DBRepository<T extends Identifiable> implements IRepository<T> {
             stmt.setString(index++, user.getPassword());
 
             if (obj instanceof Customer) {
-                stmt.setString(index++, "CUSTOMER");
+                stmt.setString(index, "CUSTOMER");
             } else if (obj instanceof Employee) {
                 stmt.setString(index++, "EMPLOYEE");
                 Employee employee = (Employee) obj;
                 stmt.setInt(index++, employee.getSalary());
-                stmt.setString(index++, employee.getRole());
+                stmt.setString(index, employee.getRole());
             }
         } else if (obj instanceof CoOwnershipRequest) {
             CoOwnershipRequest request = (CoOwnershipRequest) obj;
@@ -329,7 +344,21 @@ public class DBRepository<T extends Identifiable> implements IRepository<T> {
             stmt.setInt(index++, request.getAccount().getId()); // account_id
             stmt.setInt(index++, request.getRequester().getId()); // requester_id
             stmt.setInt(index++, request.getAccountOwner().getId()); // owner_id
-            stmt.setBoolean(index++, request.isApproved()); // approved (true/false)
+            stmt.setBoolean(index, request.isApproved()); // approved (true/false)
+        } else if (obj instanceof Transaction) {
+            Transaction transaction = (Transaction) obj;
+
+            stmt.setInt(index++, transaction.getSourceAccount().getId()); // source_account_id
+            stmt.setInt(index++, transaction.getDestinationAccount().getId()); // destination_account_id
+            stmt.setDouble(index++, transaction.getAmount()); // amount
+            java.sql.Date sqlDate = new java.sql.Date(transaction.getDate().getTime());
+            stmt.setDate(index, sqlDate); // transaction_date
+        } else if (obj instanceof Loan) {
+            Loan loan = (Loan) obj;
+
+            stmt.setInt(index++, loan.getBorrower().getId()); // borrower_id
+            stmt.setDouble(index++, loan.getLoanAmount()); // loan_amount
+            stmt.setInt(index, loan.getTermMonths()); // term_months
         }
     }
 
@@ -356,6 +385,8 @@ public class DBRepository<T extends Identifiable> implements IRepository<T> {
             if (obj instanceof Employee) {
                 fields.addAll(Arrays.asList("salary = ?", "role = ?"));
             }
+        } else if (obj instanceof Loan) {
+            fields.add("loan_amount = ?");
         }
 
         sql.append(String.join(", ", fields)).append(" WHERE id = ?");
@@ -400,6 +431,9 @@ public class DBRepository<T extends Identifiable> implements IRepository<T> {
                 stmt.setInt(index++, employee.getSalary());
                 stmt.setString(index++, employee.getRole());
             }
+        } else if (obj instanceof Loan) {
+            Loan loan = (Loan) obj;
+            stmt.setDouble(index++, loan.getLoanAmount());
         }
 
         stmt.setInt(index, obj.getId());

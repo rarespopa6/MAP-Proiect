@@ -50,4 +50,16 @@ public class DBConfig {
      * This table stores requests for co-ownership of accounts.
      */
     public static final String COOWNERSHIP_TABLE = "coownership_request";
+
+    /**
+     * The name of the Transactions table in the database.
+     * This table stores information about transactions between accounts.
+     */
+    public static final String TRANSACTIONS_TABLE = "Transactions";
+
+    /**
+     * The name of the Loans table in the database.
+     * This table stores information about loans taken out by customers.
+     */
+    public static final String LOANS_TABLE = "Loans";
 }

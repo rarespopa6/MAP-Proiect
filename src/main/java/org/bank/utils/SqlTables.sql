@@ -18,14 +18,14 @@ CREATE TABLE accounts (
       type VARCHAR(20) NOT NULL,
       transaction_fee DECIMAL(10, 2),
       interest_rate DECIMAL(5, 2),
-      monthly_withdrawal_limit INT,
+      monthly_withdrawal_limit INT
 );
 
 CREATE TABLE accountuser (
          account_id INT,
          user_id INT,
          PRIMARY KEY (account_id, user_id),
-         FOREIGN KEY (account_id) REFERENCES account(id),
+         FOREIGN KEY (account_id) REFERENCES accounts(id),
          FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
@@ -35,7 +35,7 @@ CREATE TABLE coownership_request (
          requester_id INT,
          owner_id INT,
          approved BOOLEAN DEFAULT FALSE,
-         FOREIGN KEY (account_id) REFERENCES account(id),
+         FOREIGN KEY (account_id) REFERENCES accounts(id),
          FOREIGN KEY (requester_id) REFERENCES users(id),
          FOREIGN KEY (owner_id) REFERENCES users(id)
 );

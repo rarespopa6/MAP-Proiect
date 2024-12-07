@@ -14,12 +14,13 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Service class that manages bank accounts by providing functionality to create checking and savings accounts,
+ * Service class that manages bank accounts by providing functionality to 8reate checking and savings accounts,
  * retrieve accounts for a specific customer, and close accounts.
  */
 public class AccountService {
     private final DBRepository<Account> accountRepository = new DBRepository<>(Account.class, DBConfig.ACCOUNTS_TABLE);
     private final DBRepository<CoOwnershipRequest> coOwnershipRequestRepo = new DBRepository<>(CoOwnershipRequest.class, DBConfig.COOWNERSHIP_TABLE);
+    private final DBRepository<Transaction> transactionRepository = new DBRepository<>(Transaction.class, DBConfig.TRANSACTIONS_TABLE);
     private List<CreditCard> creditCardList = new ArrayList<>();
 
     /**
@@ -298,7 +299,8 @@ public class AccountService {
         subtractBalance(selectedAccount, amount);
         addBalance(destinationAccount, amount);
         Transaction transaction = new Transaction(selectedAccount, destinationAccount, amount);
-        transaction.setId(selectedAccount.getTransactionList().size() + 1);
+        int id = transactionRepository.create(transaction);
+        transaction.setId(id);
         selectedAccount.getTransactionList().add(transaction);
         selectedAccount.getAccountLogs().addTransactionLog(destinationAccount, amount);
     }
@@ -346,6 +348,9 @@ public class AccountService {
      * @return a list of transactions for the specified account
      */
     public List<Transaction> getTransactionsForAccount(CheckingAccount account) {
+        account.setTransactionList(transactionRepository.findAll().stream()
+                .filter(transaction -> transaction.getSourceAccount().getId() == account.getId())
+                .collect(Collectors.toList()));
         return account.getTransactionList();
     }
 
