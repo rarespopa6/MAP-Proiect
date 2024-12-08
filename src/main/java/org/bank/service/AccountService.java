@@ -375,7 +375,10 @@ public class AccountService {
      * @return a list of transactions for the specified account that are above the specified amount
      */
     public List<Transaction> getTransactionsAboveAmount(CheckingAccount account, double amount) {
-        return account.getTransactionList().stream()
+        List<Transaction> allTransactions = transactionRepository.findAll();
+
+        return allTransactions.stream()
+                .filter(transaction -> transaction.getSourceAccount().getId() == account.getId())
                 .filter(transaction -> transaction.getAmount() > amount)
                 .collect(Collectors.toList());
     }
