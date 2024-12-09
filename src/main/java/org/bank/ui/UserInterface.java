@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * UserInterface class handles the interaction with the user,
@@ -590,11 +591,54 @@ public class UserInterface {
                 case 6:
                     listAllAccounts();
                     break; // TODO case 7, 8, 9
+                case 7:
+                    listAllTransactions();
+                    break;
+                case 8:
+                    viewLogsSpecific();
+                    break;
+                case 9:
+                    viewBankInfo();
+                    break;
                 default:
                     System.out.println("Invalid option. Please try again.");
                     break;
             }
         }
+    }
+
+    /**
+     * Lists Bank Info
+     */
+    private void viewBankInfo() {
+        try {
+            Bank bank = Bank.getInstance("Bank Info Germana", appController.getAllAccounts(), appController.getAllCustomers(), appController.getAllEmployees(), appController.getAllLoans());
+            System.out.println(bank.getName());
+            System.out.println();
+            System.out.println("Accounts (" + bank.getAccounts().size() + ")");
+            System.out.println("-------------------");
+            System.out.println("Customers (" + bank.getCustomers().size() + ")");
+            System.out.println("-------------------");
+            System.out.println("Employees (" + bank.getEmployees().size() + ")");
+            System.out.println("-------------------");
+            System.out.println("Loans (" + bank.getEmployees().size() + ")");
+        } catch (RuntimeException | IOException e){
+            System.out.println(e.getMessage());
+        }
+    }
+
+    /**
+     * Lists all Transactions
+     */
+    private void listAllTransactions(){
+        List<Transaction> transactions = new ArrayList<>();
+        try {
+            transactions = appController.getAllTransactions();
+        } catch (RuntimeException e){
+            System.out.println(e);
+        }
+
+        transactions.forEach(System.out::println);
     }
 
     /**
@@ -812,6 +856,44 @@ public class UserInterface {
         }
     }
 
+
+    private void viewLogsSpecific() {
+        Scanner scanner = new Scanner(System.in);
+
+        try {
+            // Solicitarea ID-ului contului de la utilizator
+            System.out.print("Enter the Account ID: ");
+            int accountId = scanner.nextInt();
+            scanner.nextLine(); // Consumă newline
+
+            // Obține contul
+            Account account = this.appController.getAccountById(accountId);
+
+            // Verifică dacă există contul
+            if (account == null) {
+                System.out.println("Error: Account with ID " + accountId + " does not exist.");
+                return;
+            }
+
+            // Obține logurile pentru cont
+            List<String> logs = this.appController.getLogsForAccount((CheckingAccount) account);
+
+            // Verifică dacă sunt loguri disponibile
+            if (logs.isEmpty()) {
+                System.out.println("No logs available for Account ID: " + accountId);
+            } else {
+                System.out.println("Logs for Account ID: " + accountId);
+                AtomicInteger index = new AtomicInteger();
+                logs.stream()
+                        .distinct() // Elimină eventualele duplicate
+                        .forEach(log -> System.out.println(index.incrementAndGet() + ". " + log));
+            }
+        } catch (RuntimeException e) {
+            System.out.println("An error occurred: Can not display for SavingsAccounts, only CheckingAccounts.");
+        }
+    }
+
+
     /**
      * Lists all ongoing loans associated with the logged-in customer.
      */
@@ -952,8 +1034,10 @@ public class UserInterface {
     private void viewLogs() {
         try {
             int index = 0;
-            for(String log : this.appController.getLogsForAccount((CheckingAccount) selectedAccount)) {
-                System.out.println(++index + ". " + log);
+            List<String> logs = this.appController.getLogsForAccount((CheckingAccount) selectedAccount);
+
+            for (int i = 0; i < logs.size(); i += 2) {
+                System.out.println(++index + ". " + logs.get(i));
             }
         } catch (RuntimeException e) {
             System.out.println("Error: No logs available");

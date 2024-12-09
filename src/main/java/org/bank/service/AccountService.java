@@ -21,6 +21,7 @@ public class AccountService {
     private final DBRepository<Account> accountRepository = new DBRepository<>(Account.class, DBConfig.ACCOUNTS_TABLE);
     private final DBRepository<CoOwnershipRequest> coOwnershipRequestRepo = new DBRepository<>(CoOwnershipRequest.class, DBConfig.COOWNERSHIP_TABLE);
     private final DBRepository<Transaction> transactionRepository = new DBRepository<>(Transaction.class, DBConfig.TRANSACTIONS_TABLE);
+    private final DBRepository<AccountLogs> accountLogsRepository = new DBRepository<>(AccountLogs.class, DBConfig.ACCOUNTLOGS_TABLE);
     private List<CreditCard> creditCardList = new ArrayList<>();
 
     /**
@@ -118,6 +119,8 @@ public class AccountService {
     public void addBalance(Account account, double amount) {
         account.setBalance(account.getBalance() + amount);
         accountRepository.update(account);
+
+        logAccountAction(account, "Deposit: " + amount);
     }
 
     /**
@@ -135,6 +138,8 @@ public class AccountService {
 
         account.setBalance(account.getBalance() - amount);
         accountRepository.update(account);
+
+        logAccountAction(account, "Withdraw: " + amount);
     }
 
     /**
@@ -146,6 +151,20 @@ public class AccountService {
     public Account getAccountByid(int id) {
         return accountRepository.read(id);
     }
+
+
+    /**
+     * Logs an action to the account logs repository.
+     *
+     * @param account the account to log for
+     * @param message the log message
+     */
+    private void logAccountAction(Account account, String message) {
+        AccountLogs logs = new AccountLogs(account);
+        logs.addLog(message);
+        accountLogsRepository.create(logs);
+    }
+
 
     /**
      * Deposits the specified amount into the account with the given ID,
@@ -174,6 +193,8 @@ public class AccountService {
         addBalance(account, amount);
         account.getAccountLogs().addDepositLog(amount);
         accountRepository.update(account);
+
+        logAccountAction(account, "Deposit: " + amount);
     }
 
     /**
@@ -207,6 +228,8 @@ public class AccountService {
         subtractBalance(account, amount);
         account.getAccountLogs().addWithdrawLog(amount);
         accountRepository.update(account);
+
+        logAccountAction(account, "Withdraw: " + amount);
     }
 
     /**
@@ -306,13 +329,17 @@ public class AccountService {
     }
 
     /**
-     * Retrieves the logs for the specified account.
+     * Retrieves the logs for the specified account from the database.
      *
      * @param account the account to get logs for
      * @return a list of logs for the specified account
      */
     public List<String> getAccountLogs(Account account) {
-        return account.getAccountLogs().getLogs();
+//        accountLogsRepository.findAll().forEach(System.out::println);
+        return accountLogsRepository.findAll().stream()
+                .filter(log -> log.getAccount().getId() == account.getId())
+                .flatMap(log -> log.getLogs().stream())
+                .collect(Collectors.toList());
     }
 
     /**
@@ -381,6 +408,14 @@ public class AccountService {
                 .filter(transaction -> transaction.getSourceAccount().getId() == account.getId())
                 .filter(transaction -> transaction.getAmount() > amount)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Retrieves a list of all transactions
+     * @return a list of transactions
+     */
+    public List<Transaction> getAllTransactions() {
+        return transactionRepository.findAll();
     }
 
     /**

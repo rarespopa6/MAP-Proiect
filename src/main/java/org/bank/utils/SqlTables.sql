@@ -39,3 +39,10 @@ CREATE TABLE coownership_request (
          FOREIGN KEY (requester_id) REFERENCES users(id),
          FOREIGN KEY (owner_id) REFERENCES users(id)
 );
+
+CREATE TABLE account_logs (
+          id SERIAL PRIMARY KEY,
+          account_id INT NOT NULL,
+          message TEXT NOT NULL,
+          FOREIGN KEY (account_id) REFERENCES accounts(id) ON DELETE CASCADE
+);

@@ -13,6 +13,7 @@ import org.bank.repository.FileRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -129,6 +130,43 @@ public class UserService {
     public List<User> getAllUsers() throws IOException {
         return userRepository.findAll();
     }
+
+    /**
+     * Retrieves a list of all customers currently stored in the repository.
+     *
+     * @return a list of all customers.
+     */
+    public List<Customer> getAllCustomers() throws IOException {
+        List<User> allUsers = userRepository.findAll();
+        List<Customer> customers = new ArrayList<>();
+
+        for (User user : allUsers) {
+            if (user instanceof Customer) {
+                customers.add((Customer) user);
+            }
+        }
+
+        return customers;
+    }
+
+    /**
+     * Retrieves a list of all employees currently stored in the repository.
+     *
+     * @return a list of all employees.
+     */
+    public List<Employee> getAllEmployees() throws IOException {
+        List<User> allUsers = userRepository.findAll();
+        List<Employee> employees = new ArrayList<>();
+
+        for (User user : allUsers) {
+            if (user instanceof Employee) {
+                employees.add((Employee) user);
+            }
+        }
+
+        return employees;
+    }
+
 
     /**
      * Adds a bank account to a customer based on their ID.
