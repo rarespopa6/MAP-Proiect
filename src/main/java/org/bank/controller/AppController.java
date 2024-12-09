@@ -484,4 +484,16 @@ public class AppController {
     public List<Transaction> getAllTransactions() {
         return accountService.getAllTransactions();
     }
+
+    public List<Customer> getAllCustomers() throws IOException {
+        return userService.getAllCustomers();
+    }
+
+    public List<Employee> getAllEmployees() throws IOException {
+        return userService.getAllEmployees();
+    }
+
+    public List<Loan> getAllLoans(){
+        return loanService.getAllLoans();
+    }
 }

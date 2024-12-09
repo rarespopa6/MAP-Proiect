@@ -597,6 +597,9 @@ public class UserInterface {
                 case 8:
                     viewLogsSpecific();
                     break;
+                case 9:
+                    viewBankInfo();
+                    break;
                 default:
                     System.out.println("Invalid option. Please try again.");
                     break;
@@ -604,6 +607,29 @@ public class UserInterface {
         }
     }
 
+    /**
+     * Lists Bank Info
+     */
+    private void viewBankInfo() {
+        try {
+            Bank bank = Bank.getInstance("Bank Info Germana", appController.getAllAccounts(), appController.getAllCustomers(), appController.getAllEmployees(), appController.getAllLoans());
+            System.out.println(bank.getName());
+            System.out.println();
+            System.out.println("Accounts (" + bank.getAccounts().size() + ")");
+            System.out.println("-------------------");
+            System.out.println("Customers (" + bank.getCustomers().size() + ")");
+            System.out.println("-------------------");
+            System.out.println("Employees (" + bank.getEmployees().size() + ")");
+            System.out.println("-------------------");
+            System.out.println("Loans (" + bank.getEmployees().size() + ")");
+        } catch (RuntimeException | IOException e){
+            System.out.println(e.getMessage());
+        }
+    }
+
+    /**
+     * Lists all Transactions
+     */
     private void listAllTransactions(){
         List<Transaction> transactions = new ArrayList<>();
         try {

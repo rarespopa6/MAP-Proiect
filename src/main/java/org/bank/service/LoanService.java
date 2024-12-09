@@ -99,4 +99,8 @@ public class LoanService {
         loans.sort((l1, l2) -> Double.compare(l1.getLoanAmount(), l2.getLoanAmount()));
         return loans;
     }
+
+    public List<Loan> getAllLoans(){
+        return loanRepository.findAll();
+    }
 }
