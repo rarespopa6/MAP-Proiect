@@ -4,12 +4,7 @@ import org.bank.config.DBConfig;
 import org.bank.model.*;
 import org.bank.model.exception.DatabaseException;
 import org.bank.model.exception.EntityNotFoundException;
-import org.bank.model.mapper.AccountMapper;
-import org.bank.model.mapper.CoOwnershipRequestMapper;
-import org.bank.model.mapper.Mapper;
-import org.bank.model.mapper.UserMapper;
-import org.bank.model.mapper.TransactionMapper;
-import org.bank.model.mapper.LoanMapper;
+import org.bank.model.mapper.*;
 
 import java.sql.*;
 import java.time.LocalDateTime;
@@ -56,6 +51,9 @@ public class DBRepository<T extends Identifiable> implements IRepository<T> {
 
         // Loan
         registerMapper(Loan.class, new LoanMapper());
+
+        // AccountLogs
+        registerMapper(AccountLogs.class, new AccountLogsMapper());
     }
 
     /**
@@ -293,6 +291,8 @@ public class DBRepository<T extends Identifiable> implements IRepository<T> {
             fields.addAll(Arrays.asList("source_account_id", "destination_account_id", "amount", "transaction_date"));
         } else if (obj instanceof Loan) {
             fields.addAll(Arrays.asList("borrower_id", "loan_amount", "term_months"));
+        } else if (obj instanceof AccountLogs) {
+            fields.addAll(Arrays.asList("account_id", "message"));
         }
 
         sql.append(String.join(", ", fields)).append(") VALUES (");
@@ -359,7 +359,15 @@ public class DBRepository<T extends Identifiable> implements IRepository<T> {
             stmt.setInt(index++, loan.getBorrower().getId()); // borrower_id
             stmt.setDouble(index++, loan.getLoanAmount()); // loan_amount
             stmt.setInt(index, loan.getTermMonths()); // term_months
+        } else if (obj instanceof AccountLogs) {
+            AccountLogs logs = (AccountLogs) obj;
+
+            if (!logs.getLogs().isEmpty()) {
+                stmt.setInt(1, logs.getAccount().getId());
+                stmt.setString(2, logs.getLogs().get(0));
+            }
         }
+
     }
 
     /**

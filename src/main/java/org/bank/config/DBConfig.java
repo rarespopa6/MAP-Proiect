@@ -62,4 +62,10 @@ public class DBConfig {
      * This table stores information about loans taken out by customers.
      */
     public static final String LOANS_TABLE = "Loans";
+
+    /**
+     * The name of the AccountLogs table in the database.
+     * This table stores information about Account Logs
+     */
+    public static final String ACCOUNTLOGS_TABLE = "Account_Logs";
 }

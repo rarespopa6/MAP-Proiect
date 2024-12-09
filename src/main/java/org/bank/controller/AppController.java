@@ -475,4 +475,13 @@ public class AppController {
     public List<Account> getAllAccounts() throws IOException {
         return accountService.getAllAccounts();
     }
+
+    /**
+     * Retrieves a list of all transactions in the system.
+     *
+     * @return a list of Transactions objects
+     */
+    public List<Transaction> getAllTransactions() {
+        return accountService.getAllTransactions();
+    }
 }

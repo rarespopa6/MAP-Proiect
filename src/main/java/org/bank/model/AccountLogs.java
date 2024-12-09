@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * Represents a storage of logs for a specific account.
  */
-public class AccountLogs {
+public class AccountLogs implements Identifiable {
     private Account account;
     private List<String> logs;
 
@@ -30,6 +30,13 @@ public class AccountLogs {
      */
     public void setLogs(List<String> logs) {
         this.logs = logs;
+    }
+
+    /**
+     * Adds a message to logs
+     */
+    public void addLog(String message) {
+        logs.add(message);
     }
 
     /**
@@ -74,8 +81,18 @@ public class AccountLogs {
     @Override
     public String toString() {
         return "AccountLogs{" +
-                "account=" + account +
+                "account=" + account.getId() +
                 ", logs=" + logs +
                 '}';
+    }
+
+    @Override
+    public int getId() {
+        return 0;
+    }
+
+    @Override
+    public void setId(int id) {
+
     }
 }
