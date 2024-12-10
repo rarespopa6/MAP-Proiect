@@ -10,6 +10,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.*;
 import java.util.ArrayList;
@@ -207,7 +208,7 @@ public class ApplicationTest {
         // Act
         try {
             accountService.approveCoOwnershipRequest(requestId);
-        } catch (EntityNotFoundException e){
+        } catch (EntityNotFoundException | IOException e){
             assertTrue(true);
         }
     }
@@ -225,7 +226,7 @@ public class ApplicationTest {
 
     // Test for `payLoan`
     @Test
-    public void testPayLoanFullPayment() {
+    public void testPayLoanFullPayment() throws IOException {
         Loan loan = new Loan(customer, 1000.0, 24);
         loan.setId(1);
         when(loanRepository.findAll()).thenReturn(List.of(loan)); // Mocking the loan repository to return the loan

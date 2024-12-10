@@ -9,14 +9,9 @@ public class Main {
         ui.start();
 
         // TODO List
-        // LoanMapper
-        // TransactionMapper
-        // CreditCardMapper
-        // AccountLogsMapper
-        // BankMapper
-        // + de adaugat numele tabelelor in DBConfig
-        // + de adaugat in DBRepository la logica de INSERT/UPDATE (cu populate)
-
-        // UI: Employee Actions -> View all Transactions + View Account Logs for Account
+        // pentru In-Memory:
+        // "darius@gmail.com", "1234");
+        // "rares@gmail.com", "1234");
+        // "jane@gmail.com", "1234");
     }
 }

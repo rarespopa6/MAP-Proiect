@@ -222,16 +222,15 @@ public class CreditCard {
      */
     @Override
     public String toString() {
-        return "CreditCard{" +
+        return "CreditCard | " +
                 "cardId=" + cardId +
-                ", owner=" + owner +
-                ", account=" + account +
-                ", cardLimit=" + cardLimit +
-                ", currentBalance=" + currentBalance +
-                ", interestRate=" + interestRate +
-                ", cardNumber=" + cardNumber +
-                ", expiryDate=" + expiryDate +
-                ", cvv=" + cvv +
-                '}';
+                "| owner=" + owner +
+                "| account=" + account +
+                "| cardLimit=" + cardLimit +
+                "| currentBalance=" + currentBalance +
+                "| interestRate=" + interestRate +
+                "| cardNumber=" + cardNumber +
+                "| expiryDate=" + expiryDate +
+                "| cvv=" + cvv;
     }
 }

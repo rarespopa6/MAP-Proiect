@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * allowing customers and employees to perform various banking operations.
  */
 public class UserInterface {
-    private final AppController appController = new AppController();
+    private AppController appController;
     private final Scanner scanner = new Scanner(System.in);
     private User loggedInUser;
     private Account selectedAccount;
@@ -24,6 +24,38 @@ public class UserInterface {
      * Provides options to log in, sign up, or exit the application.
      */
     public void start() {
+        System.out.println("--- Select Data Storage Method ---");
+        System.out.println("1. In-memory");
+        System.out.println("2. File");
+        System.out.println("3. Database");
+        System.out.print("Choose an option: ");
+
+        int storageOption = scanner.nextInt();
+        scanner.nextLine();
+
+        String storageMethod;
+        switch (storageOption) {
+            case 1:
+                storageMethod = "inmemory";
+                break;
+            case 2:
+                storageMethod = "file";
+                break;
+            case 3:
+                storageMethod = "db";
+                break;
+            default:
+                System.out.println("Invalid option, defaulting to Database storage.");
+                storageMethod = "db";
+                break;
+        }
+
+        appController = new AppController(storageMethod);
+
+        if ("inmemory".equalsIgnoreCase(storageMethod)) {
+            populateInMemoryData();
+        }
+
         while (true) {
             System.out.println("\n--- Banking Administration System ---");
             System.out.println("1. Login");
@@ -126,7 +158,7 @@ public class UserInterface {
     /**
      * Displays actions available to a logged-in customer and handles user choices.
      */
-    private void customerActions() {
+    private void customerActions() throws IOException {
         while (true) {
             System.out.println("\n--- Customer Actions ---");
             System.out.println("1. My Profile");
@@ -427,7 +459,7 @@ public class UserInterface {
         try {
             appController.approveCoOwnership(requestId);
             System.out.println("Request approved successfully.");
-        } catch (RuntimeException e) {
+        } catch (RuntimeException | IOException e) {
             System.out.println("Error: " + e.getMessage());
         }
     }
@@ -803,7 +835,7 @@ public class UserInterface {
     /**
      * Displays loan-related actions available to the customer and handles user choices.
      */
-    private void loanActions() {
+    private void loanActions() throws IOException {
         while (true) {
             System.out.println("\n--- Loan Actions ---");
             System.out.println("1. Apply for Loan");
@@ -861,31 +893,26 @@ public class UserInterface {
         Scanner scanner = new Scanner(System.in);
 
         try {
-            // Solicitarea ID-ului contului de la utilizator
             System.out.print("Enter the Account ID: ");
             int accountId = scanner.nextInt();
-            scanner.nextLine(); // Consumă newline
+            scanner.nextLine();
 
-            // Obține contul
             Account account = this.appController.getAccountById(accountId);
 
-            // Verifică dacă există contul
             if (account == null) {
                 System.out.println("Error: Account with ID " + accountId + " does not exist.");
                 return;
             }
 
-            // Obține logurile pentru cont
             List<String> logs = this.appController.getLogsForAccount((CheckingAccount) account);
 
-            // Verifică dacă sunt loguri disponibile
             if (logs.isEmpty()) {
                 System.out.println("No logs available for Account ID: " + accountId);
             } else {
                 System.out.println("Logs for Account ID: " + accountId);
                 AtomicInteger index = new AtomicInteger();
                 logs.stream()
-                        .distinct() // Elimină eventualele duplicate
+                        .distinct()
                         .forEach(log -> System.out.println(index.incrementAndGet() + ". " + log));
             }
         } catch (RuntimeException e) {
@@ -912,7 +939,7 @@ public class UserInterface {
     /**
      * Allows the customer to pay off an existing loan.
      */
-    private void payLoan() {
+    private void payLoan() throws IOException {
         System.out.print("Enter loan ID: ");
         int loanId = scanner.nextInt();
         scanner.nextLine();
@@ -1089,6 +1116,24 @@ public class UserInterface {
             }
         } catch (RuntimeException e){
             System.out.println(e.getMessage());
+        }
+    }
+
+    /**
+     * Populate for in memory
+     */
+    private void populateInMemoryData() {
+        try {
+            int customer1Id = appController.createCustomer("Darius", "Bolos", "darius@gmail.com", "1234567890", "1234");
+            int customer2Id = appController.createCustomer("Rares", "Popa", "rares@gmail.com", "0987654321", "1234");
+            int customer3Id = appController.createCustomer("Jane", "Johnson", "jane@gmail.com", "1122334455", "1234");
+
+            appController.createCheckingAccount(customer1Id, 1000.0);
+            appController.createCheckingAccount(customer2Id, 500.0);
+            appController.createCheckingAccount(customer3Id, 750.0);
+
+        } catch (RuntimeException | IOException e) {
+            System.out.println("Error populating in-memory data: " + e.getMessage());
         }
     }
 

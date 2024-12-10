@@ -120,12 +120,11 @@ public class Bank {
      */
     @Override
     public String toString() {
-        return "Bank{" +
+        return "Bank | " +
                 "name='" + name + '\'' +
-                ", accounts=" + accounts +
-                ", customers=" + customers +
-                ", employees=" + employees +
-                ", loans=" + loans +
-                '}';
+                "| accounts=" + accounts +
+                "| customers=" + customers +
+                "| employees=" + employees +
+                "| loans=" + loans;
     }
 }

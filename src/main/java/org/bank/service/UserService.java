@@ -10,6 +10,8 @@ import org.bank.model.exception.DatabaseException;
 import org.bank.model.exception.EntityNotFoundException;
 import org.bank.repository.DBRepository;
 import org.bank.repository.FileRepository;
+import org.bank.repository.IRepository;
+import org.bank.repository.InMemoryRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.io.IOException;
@@ -23,8 +25,25 @@ import java.util.stream.Collectors;
  * This service handles user creation, retrieval, updating, and deletion, as well as account management for customers.
  */
 public class UserService {
-    private final DBRepository<User> userRepository = new DBRepository<>(User.class, DBConfig.USERS_TABLE);
+    private IRepository<User> userRepository; // = new DBRepository<>(User.class, DBConfig.USERS_TABLE);
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+    public UserService(String storageMethod) {
+        switch (storageMethod.toLowerCase()) {
+            case "inmemory":
+                userRepository = new InMemoryRepository<>();
+                break;
+            case "file":
+                userRepository = new FileRepository<>("data/users.csv");
+                break;
+            case "db":
+                userRepository = new DBRepository<>(User.class, DBConfig.USERS_TABLE);
+                break;
+            default:
+                userRepository = new DBRepository<>(User.class, DBConfig.USERS_TABLE);
+                break;
+        }
+    }
 
     /**
      * Creates a new employee and saves it in the repository. Ensures the email is unique.

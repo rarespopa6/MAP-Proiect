@@ -14,9 +14,33 @@ import java.util.List;
  * This class handles user-related and account-related operations.
  */
 public class AppController {
-    private final UserService userService = new UserService();
-    private final AccountService accountService = new AccountService();
-    private final LoanService loanService = new LoanService();
+    private final UserService userService;
+    private final AccountService accountService;
+    private final LoanService loanService;
+    private final String storageMethod;
+
+    public AppController(String storageMethod) {
+        this.storageMethod = storageMethod;
+        this.userService = new UserService(storageMethod);
+        this.accountService = new AccountService(storageMethod);
+        this.loanService = new LoanService(storageMethod);
+    }
+
+    public String getStorageMethod() {
+        return storageMethod;
+    }
+
+    public UserService getUserService() {
+        return userService;
+    }
+
+    public AccountService getAccountService() {
+        return accountService;
+    }
+
+    public LoanService getLoanService() {
+        return loanService;
+    }
 
     /**
      * Creates a new customer and returns their unique identifier.
@@ -189,7 +213,7 @@ public class AppController {
      * @param account the account from which the payment will be deducted
      * @param paymentAmount the amount to be paid off
      */
-    public void payLoan(int loanId, Customer borrower, Account account, double paymentAmount) {
+    public void payLoan(int loanId, Customer borrower, Account account, double paymentAmount) throws IOException {
         Loan loan = this.loanService.getLoans(borrower).stream()
                 .filter(l -> l.getId() == loanId)
                 .findFirst()
@@ -330,7 +354,7 @@ public class AppController {
      * @param requestId the ID of the co-ownership request to approve
      * @throws RuntimeException if the request cannot be found or other errors occur
      */
-    public void approveCoOwnership(int requestId) {
+    public void approveCoOwnership(int requestId) throws IOException {
         if (requestId < 0){
             throw new ValidationException("Invalid request id");
         }

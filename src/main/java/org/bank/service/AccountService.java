@@ -7,6 +7,7 @@ import org.bank.model.exception.EntityNotFoundException;
 import org.bank.model.exception.ValidationException;
 import org.bank.repository.DBRepository;
 import org.bank.repository.FileRepository;
+import org.bank.repository.IRepository;
 import org.bank.repository.InMemoryRepository;
 
 import java.io.IOException;
@@ -18,11 +19,43 @@ import java.util.stream.Collectors;
  * retrieve accounts for a specific customer, and close accounts.
  */
 public class AccountService {
-    private final DBRepository<Account> accountRepository = new DBRepository<>(Account.class, DBConfig.ACCOUNTS_TABLE);
-    private final DBRepository<CoOwnershipRequest> coOwnershipRequestRepo = new DBRepository<>(CoOwnershipRequest.class, DBConfig.COOWNERSHIP_TABLE);
-    private final DBRepository<Transaction> transactionRepository = new DBRepository<>(Transaction.class, DBConfig.TRANSACTIONS_TABLE);
-    private final DBRepository<AccountLogs> accountLogsRepository = new DBRepository<>(AccountLogs.class, DBConfig.ACCOUNTLOGS_TABLE);
-    private List<CreditCard> creditCardList = new ArrayList<>();
+    private final IRepository<Account> accountRepository;
+    private final IRepository<CoOwnershipRequest> coOwnershipRequestRepo;
+    private final IRepository<Transaction> transactionRepository;
+    private final IRepository<AccountLogs> accountLogsRepository;
+    private final List<CreditCard> creditCardList = new ArrayList<>();
+
+    public AccountService(){
+        accountRepository = new DBRepository<>(Account.class, DBConfig.ACCOUNTS_TABLE);
+        coOwnershipRequestRepo = new DBRepository<>(CoOwnershipRequest.class, DBConfig.COOWNERSHIP_TABLE);
+        transactionRepository = new DBRepository<>(Transaction.class, DBConfig.TRANSACTIONS_TABLE);
+        accountLogsRepository = new DBRepository<>(AccountLogs.class, DBConfig.ACCOUNTLOGS_TABLE);
+    }
+
+    public AccountService(String storageMethod) {
+        switch (storageMethod.toLowerCase()) {
+            case "inmemory":
+                accountRepository = new InMemoryRepository<>();
+                coOwnershipRequestRepo = new InMemoryRepository<>();
+                transactionRepository = new InMemoryRepository<>();
+                accountLogsRepository = new InMemoryRepository<>();
+                break;
+            case "file":
+                accountRepository = new FileRepository<>("data/accounts.csv");
+                coOwnershipRequestRepo = new DBRepository<>(CoOwnershipRequest.class, DBConfig.COOWNERSHIP_TABLE);
+                transactionRepository = new DBRepository<>(Transaction.class, DBConfig.TRANSACTIONS_TABLE);
+                accountLogsRepository = new DBRepository<>(AccountLogs.class, DBConfig.ACCOUNTLOGS_TABLE);
+                break;
+            case "db":
+                accountRepository = new DBRepository<>(Account.class, DBConfig.ACCOUNTS_TABLE);
+                coOwnershipRequestRepo = new DBRepository<>(CoOwnershipRequest.class, DBConfig.COOWNERSHIP_TABLE);
+                transactionRepository = new DBRepository<>(Transaction.class, DBConfig.TRANSACTIONS_TABLE);
+                accountLogsRepository = new DBRepository<>(AccountLogs.class, DBConfig.ACCOUNTLOGS_TABLE);
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown storage method: " + storageMethod);
+        }
+    }
 
     /**
      * Retrieves all accounts associated with a specified customer ID.
@@ -266,7 +299,7 @@ public class AccountService {
      * @param requestId the ID of the co-ownership request to approve
      * @throws RuntimeException if the request is not found, is already approved, or if there are issues with the approval
      */
-    public void approveCoOwnershipRequest(int requestId) {
+    public void approveCoOwnershipRequest(int requestId) throws IOException {
         CoOwnershipRequest request = coOwnershipRequestRepo.read(requestId);
 
         if (request != null && !request.isApproved()) {

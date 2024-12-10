@@ -5,7 +5,11 @@ import org.bank.model.Customer;
 import org.bank.model.Loan;
 import org.bank.model.exception.ValidationException;
 import org.bank.repository.DBRepository;
+import org.bank.repository.FileRepository;
+import org.bank.repository.IRepository;
+import org.bank.repository.InMemoryRepository;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -13,9 +17,23 @@ import java.util.stream.Collectors;
  * Service class that manages loans by providing functionality to create new loans, pay off loans, and retrieve loans
  */
 public class LoanService {
-    private final DBRepository<Loan> loanRepository = new DBRepository<>(Loan.class, DBConfig.LOANS_TABLE);
+    private IRepository<Loan> loanRepository = new DBRepository<>(Loan.class, DBConfig.LOANS_TABLE);
 
-    public LoanService() {
+    public LoanService(String storageMethod) {
+        switch (storageMethod.toLowerCase()) {
+            case "inmemory":
+                loanRepository = new InMemoryRepository<>();
+                break;
+            case "file":
+                loanRepository = new DBRepository<>(Loan.class, DBConfig.LOANS_TABLE);
+                break;
+            case "db":
+                loanRepository = new DBRepository<>(Loan.class, DBConfig.LOANS_TABLE);
+                break;
+            default:
+                loanRepository = new DBRepository<>(Loan.class, DBConfig.LOANS_TABLE);
+                break;
+        }
     }
 
     /**
@@ -43,7 +61,7 @@ public class LoanService {
      * @param loan the loan to be paid off
      * @param payment the amount to be paid off
      */
-    public double payLoan(Customer borrower, Loan loan, double payment) {
+    public double payLoan(Customer borrower, Loan loan, double payment) throws IOException {
         double paymentToBeProcessed = Math.min(payment, loan.getLoanAmount());
 
         double remainingAmount = loan.getLoanAmount() - paymentToBeProcessed;
