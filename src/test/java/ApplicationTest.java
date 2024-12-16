@@ -33,8 +33,7 @@ public class ApplicationTest {
     @Mock
     private DBRepository<Loan> loanRepository;
 
-    @InjectMocks
-    private LoanService loanService;
+    private LoanService loanService = new LoanService();
 
     private Customer customer;
 

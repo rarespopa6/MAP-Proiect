@@ -17,7 +17,11 @@ import java.util.stream.Collectors;
  * Service class that manages loans by providing functionality to create new loans, pay off loans, and retrieve loans
  */
 public class LoanService {
-    private IRepository<Loan> loanRepository = new DBRepository<>(Loan.class, DBConfig.LOANS_TABLE);
+    private IRepository<Loan> loanRepository;
+
+    public LoanService(){
+        this.loanRepository = new DBRepository<>(Loan.class, DBConfig.LOANS_TABLE);;
+    }
 
     public LoanService(String storageMethod) {
         switch (storageMethod.toLowerCase()) {
