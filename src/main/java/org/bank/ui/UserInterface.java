@@ -30,10 +30,18 @@ public class UserInterface {
         System.out.println("3. Database");
         System.out.print("Choose an option: ");
 
-        int storageOption = scanner.nextInt();
-        scanner.nextLine();
+        int storageOption;
 
+        try {
+            storageOption = scanner.nextInt();
+            scanner.nextLine();
+        } catch (Exception e) {
+            System.out.println("Invalid option, defaulting to Database storage.");
+            storageOption = 3;
+            scanner.nextLine();
+        }
         String storageMethod;
+
         switch (storageOption) {
             case 1:
                 storageMethod = "inmemory";
@@ -63,8 +71,16 @@ public class UserInterface {
             System.out.println("0. Exit");
             System.out.print("Choose an option: ");
 
-            int option = scanner.nextInt();
-            scanner.nextLine();
+            int option;
+
+            try {
+                option = scanner.nextInt();
+                scanner.nextLine();
+            } catch (Exception e) {
+                System.out.println("Invalid option. Please try again.");
+                scanner.nextLine();
+                continue;
+            }
 
             if (option == 0) {
                 System.out.println("Exiting...");
@@ -122,7 +138,7 @@ public class UserInterface {
                 System.out.println("Invalid user type.");
             }
         } catch (Exception e) {
-            System.out.println("User not found.");
+            System.out.println(e.getMessage());
         }
     }
 
@@ -177,8 +193,16 @@ public class UserInterface {
             System.out.println("0. Logout");
             System.out.print("Choose an option: ");
 
-            int option = scanner.nextInt();
-            scanner.nextLine();
+            int option;
+
+            try {
+                option = scanner.nextInt();
+                scanner.nextLine();
+            } catch (Exception e) {
+                System.out.println("Invalid option. Please try again.");
+                scanner.nextLine();
+                continue;
+            }
 
             if (option == 0) {
                 System.out.println("Logging out...");
@@ -219,6 +243,7 @@ public class UserInterface {
                 case 10:
                     setSelectedAccount();
                     creditCardActions();
+                    break;
                 case 11:
                     setSelectedAccount();
                     if(selectedAccount != null) {

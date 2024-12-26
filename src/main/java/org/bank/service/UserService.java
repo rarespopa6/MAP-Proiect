@@ -83,6 +83,11 @@ public class UserService {
         if (userExistsByEmail(email)) {
             throw new BusinessLogicException("A customer with this email already exists");
         }
+
+        if (!email.contains("@") || !email.contains(".")) {
+            throw new BusinessLogicException("Invalid email address");
+        }
+
         String hashedPassword = passwordEncoder.encode(password);
         Customer customer = new Customer(firstName, lastName, email, phoneNumber, hashedPassword);
 

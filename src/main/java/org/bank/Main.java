@@ -8,10 +8,15 @@ public class Main {
         UserInterface ui = new UserInterface();
         ui.start();
 
-        // TODO List
+        // TODO Login Credentials
         // pentru In-Memory:
         // "darius@gmail.com", "1234");
         // "rares@gmail.com", "1234");
         // "jane@gmail.com", "1234");
+
+        // pentru File:
+        // "raul@gmail.com", "1234"
+        // "darius@gmail.com", "1234"
+        // "rares@gmail.com", "1234"
     }
 }

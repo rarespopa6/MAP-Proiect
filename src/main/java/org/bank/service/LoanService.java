@@ -19,10 +19,22 @@ import java.util.stream.Collectors;
 public class LoanService {
     private IRepository<Loan> loanRepository;
 
+    /**
+     * Default constructor that initializes the loan repository with a database storage method.
+     */
     public LoanService(){
         this.loanRepository = new DBRepository<>(Loan.class, DBConfig.LOANS_TABLE);;
     }
 
+    /**
+     * Constructor that allows choosing the storage method for repositories.
+     * Depending on the provided storage method, the repositories are initialized either with an in-memory,
+     * file, or database storage method.
+     *
+     * @param storageMethod The method used for storing data. Can be one of the following:
+     *                      "inmemory", "file", or "db".
+     * @throws IllegalArgumentException If the provided storage method is not recognized.
+     */
     public LoanService(String storageMethod) {
         switch (storageMethod.toLowerCase()) {
             case "inmemory":

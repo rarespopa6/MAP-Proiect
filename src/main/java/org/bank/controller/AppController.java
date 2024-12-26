@@ -82,6 +82,11 @@ public class AppController {
         if (email.isEmpty()){
             throw new ValidationException("Invalid user email");
         }
+
+        if(!email.contains("@") || !email.contains(".")){
+            throw new ValidationException("Invalid email address. It must contain '@' and '.'");
+        }
+
         return userService.getUserByEmail(email);
     }
 
