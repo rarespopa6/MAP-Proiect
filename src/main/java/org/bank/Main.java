@@ -8,15 +8,15 @@ public class Main {
         UserInterface ui = new UserInterface();
         ui.start();
 
-        // TODO List
-        // LoanMapper
-        // TransactionMapper
-        // CreditCardMapper
-        // AccountLogsMapper
-        // BankMapper
-        // + de adaugat numele tabelelor in DBConfig
-        // + de adaugat in DBRepository la logica de INSERT/UPDATE (cu populate)
+        // TODO Login Credentials
+        // pentru In-Memory:
+        // "darius@gmail.com", "1234");
+        // "rares@gmail.com", "1234");
+        // "jane@gmail.com", "1234");
 
-        // UI: Employee Actions -> View all Transactions + View Account Logs for Account
+        // pentru File:
+        // "raul@gmail.com", "1234"
+        // "darius@gmail.com", "1234"
+        // "rares@gmail.com", "1234"
     }
 }

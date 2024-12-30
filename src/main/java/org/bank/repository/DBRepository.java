@@ -207,6 +207,7 @@ public class DBRepository<T extends Identifiable> implements IRepository<T> {
      *
      * @return A list of all entities of the specified type.
      */
+    @Override
     public List<T> findAll() {
         List<T> results = new ArrayList<>();
         String sql = "SELECT * FROM " + tableName;

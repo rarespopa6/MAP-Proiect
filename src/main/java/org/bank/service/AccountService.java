@@ -7,6 +7,7 @@ import org.bank.model.exception.EntityNotFoundException;
 import org.bank.model.exception.ValidationException;
 import org.bank.repository.DBRepository;
 import org.bank.repository.FileRepository;
+import org.bank.repository.IRepository;
 import org.bank.repository.InMemoryRepository;
 
 import java.io.IOException;
@@ -18,11 +19,56 @@ import java.util.stream.Collectors;
  * retrieve accounts for a specific customer, and close accounts.
  */
 public class AccountService {
-    private final DBRepository<Account> accountRepository = new DBRepository<>(Account.class, DBConfig.ACCOUNTS_TABLE);
-    private final DBRepository<CoOwnershipRequest> coOwnershipRequestRepo = new DBRepository<>(CoOwnershipRequest.class, DBConfig.COOWNERSHIP_TABLE);
-    private final DBRepository<Transaction> transactionRepository = new DBRepository<>(Transaction.class, DBConfig.TRANSACTIONS_TABLE);
-    private final DBRepository<AccountLogs> accountLogsRepository = new DBRepository<>(AccountLogs.class, DBConfig.ACCOUNTLOGS_TABLE);
-    private List<CreditCard> creditCardList = new ArrayList<>();
+    private final IRepository<Account> accountRepository;
+    private final IRepository<CoOwnershipRequest> coOwnershipRequestRepo;
+    private final IRepository<Transaction> transactionRepository;
+    private final IRepository<AccountLogs> accountLogsRepository;
+    private final List<CreditCard> creditCardList = new ArrayList<>();
+
+    /**
+     * Default constructor that initializes the repositories for account, co-ownership request, transaction,
+     * and account logs using the default storage method (database).
+     */
+    public AccountService(){
+        accountRepository = new DBRepository<>(Account.class, DBConfig.ACCOUNTS_TABLE);
+        coOwnershipRequestRepo = new DBRepository<>(CoOwnershipRequest.class, DBConfig.COOWNERSHIP_TABLE);
+        transactionRepository = new DBRepository<>(Transaction.class, DBConfig.TRANSACTIONS_TABLE);
+        accountLogsRepository = new DBRepository<>(AccountLogs.class, DBConfig.ACCOUNTLOGS_TABLE);
+    }
+
+    /**
+     * Constructor that allows choosing the storage method for repositories.
+     * Depending on the provided storage method, the repositories are initialized either with an in-memory,
+     * file, or database storage method.
+     *
+     * @param storageMethod The method used for storing data. Can be one of the following:
+     *                      "inmemory", "file", or "db".
+     * @throws IllegalArgumentException If the provided storage method is not recognized.
+     */
+    public AccountService(String storageMethod) {
+        switch (storageMethod.toLowerCase()) {
+            case "inmemory":
+                accountRepository = new InMemoryRepository<>();
+                coOwnershipRequestRepo = new InMemoryRepository<>();
+                transactionRepository = new InMemoryRepository<>();
+                accountLogsRepository = new InMemoryRepository<>();
+                break;
+            case "file":
+                accountRepository = new FileRepository<>("data/accounts.csv");
+                coOwnershipRequestRepo = new DBRepository<>(CoOwnershipRequest.class, DBConfig.COOWNERSHIP_TABLE);
+                transactionRepository = new DBRepository<>(Transaction.class, DBConfig.TRANSACTIONS_TABLE);
+                accountLogsRepository = new DBRepository<>(AccountLogs.class, DBConfig.ACCOUNTLOGS_TABLE);
+                break;
+            case "db":
+                accountRepository = new DBRepository<>(Account.class, DBConfig.ACCOUNTS_TABLE);
+                coOwnershipRequestRepo = new DBRepository<>(CoOwnershipRequest.class, DBConfig.COOWNERSHIP_TABLE);
+                transactionRepository = new DBRepository<>(Transaction.class, DBConfig.TRANSACTIONS_TABLE);
+                accountLogsRepository = new DBRepository<>(AccountLogs.class, DBConfig.ACCOUNTLOGS_TABLE);
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown storage method: " + storageMethod);
+        }
+    }
 
     /**
      * Retrieves all accounts associated with a specified customer ID.
@@ -266,7 +312,7 @@ public class AccountService {
      * @param requestId the ID of the co-ownership request to approve
      * @throws RuntimeException if the request is not found, is already approved, or if there are issues with the approval
      */
-    public void approveCoOwnershipRequest(int requestId) {
+    public void approveCoOwnershipRequest(int requestId) throws IOException {
         CoOwnershipRequest request = coOwnershipRequestRepo.read(requestId);
 
         if (request != null && !request.isApproved()) {
@@ -335,12 +381,18 @@ public class AccountService {
      * @return a list of logs for the specified account
      */
     public List<String> getAccountLogs(Account account) {
-//        accountLogsRepository.findAll().forEach(System.out::println);
-        return accountLogsRepository.findAll().stream()
-                .filter(log -> log.getAccount().getId() == account.getId())
-                .flatMap(log -> log.getLogs().stream())
-                .collect(Collectors.toList());
+        List<String> allLogs = new ArrayList<>();
+
+        accountLogsRepository.findAll().forEach(log -> {
+            if (log.getAccount().getId() == account.getId()) {
+                allLogs.addAll(log.getLogs());
+            }
+        });
+
+        return allLogs;
     }
+
+
 
     /**
      * Retrieves a list of accounts for a specific user, sorted by balance.

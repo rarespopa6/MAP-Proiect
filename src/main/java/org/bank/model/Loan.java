@@ -111,11 +111,10 @@ public class Loan implements Identifiable {
      */
     @Override
     public String toString() {
-        return "Loan{" +
+        return "Loan | " +
                 "id=" + id +
-                ", borrower=" + borrower.getId() +
-                ", loanAmount=" + loanAmount +
-                ", termMonths=" + termMonths +
-                '}';
+                "| borrower=" + borrower.getId() +
+                "| loanAmount=" + loanAmount +
+                "| termMonths=" + termMonths;
     }
 }

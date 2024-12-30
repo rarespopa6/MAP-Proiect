@@ -100,12 +100,11 @@ public class Transaction implements Identifiable {
      */
     @Override
     public String toString() {
-        return "Transaction{" +
+        return "Transaction | " +
                 "id=" + id +
-                ", sourceAccount=" + sourceAccount.getId() +
-                ", destinationAccount=" + destinationAccount.getId() +
-                ", amount=" + amount +
-                ", date=" + date +
-                '}';
+                "| sourceAccount=" + sourceAccount.getId() +
+                "| destinationAccount=" + destinationAccount.getId() +
+                "| amount=" + amount +
+                "| date=" + date;
     }
 }
