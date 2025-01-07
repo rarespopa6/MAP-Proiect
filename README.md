@@ -103,7 +103,9 @@ Manage customer information or remove users from the system.
 
 Manage customer information or remove users from the system.
 
-<img width="862" alt="image" src="https://github.com/user-attachments/assets/7f32737e-6cc3-4515-9691-30a72cbd3c61">
+<img width="862" alt="image" src="https://github.com/user-attachments/assets/90efb6b8-90c3-4b50-a378-ec6eb2174463">
 
+
+<img width="862" alt="image" src="https://github.com/user-attachments/assets/c2dd7ef6-65a8-4c6b-af7a-a0a41e019aba">
 
 
